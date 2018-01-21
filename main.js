@@ -31,15 +31,20 @@ function discoverLink(url, linkName) {
     }
 }
 
-function signIn() {
+function micropubConfig(mpEndpoint, token) {
+    const req = new Request(mpEndpoint + '?q=config&access_token=' + token, {
+        method: 'GET',
+        mode: 'cors',
+    });
+    return fetch(req).then(response => response.json());
 }
 
 (function(w){
   const params = getUrlParams(w.location.search);
 
   if (!!params.code) {
-    w.authForm.style.display = 'none';
-    w.micropubForm.style.display = 'block';
+    w.authScreen.style.display = 'none';
+    w.postScreen.style.display = 'block';
     const data = new FormData();
     data.append('code', params.code);
     data.append('client_id', "http://localhost:4321");
@@ -56,10 +61,26 @@ function signIn() {
             w.tokenField.value = r.access_token;
             discoverLink(r.me, "micropub").then(mpUrl => {
                 w.micropubForm.action = mpUrl;
+                micropubConfig(mpUrl, r.access_token).then(config => {
+                    const mediaEndpoint = config['media-endpoint'];
+                    if (!!mediaEndpoint) {
+                        console.log("Media endpoint supported");
+                        w.mediaForm.style.display = 'block';
+                        w.mediaForm.action = mediaEndpoint;
+                        w.mediaForm.onsubmit = function(evt){
+                            evt.preventDefault();
+                            return false;
+                        }
+                    } else {
+                        console.log("No media endpoint, resort to inline upload");
+                        w.micropubForm.enctype = "multipart/form-data";
+                        w.inlineMediaField.style.display = 'inline-block';
+                    }
+                })
             });
         }, error => {
             alert(error);
-            w.micropubForm.style.display = 'none';
+            w.postScreen.style.display = 'none';
         });
     });
   } else {
