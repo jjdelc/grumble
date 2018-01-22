@@ -16,7 +16,8 @@
 </div>
 <div id="postScreen" style="display: none">
     <form action="" method="POST" id="micropubForm">
-        <p><input type="text" required name="name"/></p>
+        <h1>New post</h1>
+        <p><input type="text" name="name" placeholder="Optional title"/></p>
         <p><textarea placeholder="blog post here" name="content"></textarea></p>
         <p><input type="file" name="" id="inlineMediaField" style="display: none;"></p>
         <p><button type="submit">Post</button></p>
@@ -24,6 +25,7 @@
         <input type="hidden" name="access_token" value="" id="tokenField"/>
     </form>
     <form action="" method="POST" enctype="multipart/form-data" id="mediaForm" style="display: none">
+        <h2>Media support</h2>
         <input type="file" multiple name="file" required/>
         <input type="submit">
     </form>
