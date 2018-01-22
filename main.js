@@ -1,11 +1,3 @@
-function getUrlParams(search) {
-  let hashes = search.slice(search.indexOf('?') + 1).split('&')
-  return hashes.reduce((params, hash) => {
-      let [key, val] = hash.split('=')
-      return Object.assign(params, {[key]: decodeURIComponent(val)})
-  }, {})
-}
-
 function discoverLink(url, linkName) {
     const rels = ['token_endpoint', 'authorization_endpoint', 'micropub'];
     const key = "urlDiscoveredLinks";
@@ -32,7 +24,10 @@ function discoverLink(url, linkName) {
 }
 
 function micropubConfig(mpEndpoint, token) {
-    const req = new Request(mpEndpoint + '?q=config&access_token=' + token, {
+    const params = new URLSearchParams()
+    params.append('q', 'config');
+    params.append('access_token', token);
+    const req = new Request(mpEndpoint + '?' + params.toString(), {
         method: 'GET',
         mode: 'cors',
     });
@@ -40,18 +35,19 @@ function micropubConfig(mpEndpoint, token) {
 }
 
 (function(w){
-  const params = getUrlParams(w.location.search);
+  const params = new URLSearchParams(w.location.search);
 
-  if (!!params.code) {
+  const code = params.get('code');
+  if (!!code) {
     w.authScreen.style.display = 'none';
     w.postScreen.style.display = 'block';
     const data = new FormData();
-    data.append('code', params.code);
+    data.append('code', code);
     data.append('client_id', "http://localhost:4321");
     data.append('redirect_uri', "http://localhost:4321");
     data.append('grant_type',"authorization_code");
 
-    discoverLink(params.me, "token_endpoint").then(tokenEndpoint => {
+    discoverLink(params.get('me'), "token_endpoint").then(tokenEndpoint => {
         const req = new Request(tokenEndpoint, {
           method: 'POST',
           body: data,
