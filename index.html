@@ -3,10 +3,10 @@
 <meta charset="UTF-8"/>
 </head>
 <body>
-<div id="authScreen">
+<div id="authSection">
     <form action="" method="get" id="authForm">
     <label for="indie_auth_url">Web Address:</label>
-    <input id="indie_auth_url" type="text" name="me" placeholder="yourdomain.com" />
+    <input id="indie_auth_url" type="text" name="me" required placeholder="yourdomain.com" />
     <p><button type="submit">Sign In</button></p>
     <input type="hidden" name="client_id" value="http://localhost:4321" />
     <input type="hidden" name="redirect_uri" value="http://localhost:4321" />
@@ -15,7 +15,7 @@
     </form>
     <button id="resetApp">Reset app</button>
 </div>
-<div id="postScreen" style="display: none">
+<div id="postSection" style="display: none">
     <form action="" method="POST" id="micropubForm">
         <h1>New post</h1>
         <p><input type="text" name="name" placeholder="Optional title"/></p>
