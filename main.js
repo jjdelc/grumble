@@ -77,42 +77,43 @@ function startAuthDance(siteUrl, w) {
 }
 
 (function(w){
-  const params = new URLSearchParams(w.location.search);
-  const code = params.get('code');
-  if (!!code) {
-    const data = new FormData();
-    data.append('code', code);
-    data.append('client_id', "http://localhost:4321");
-    data.append('redirect_uri', "http://localhost:4321");
-    data.append('grant_type',"authorization_code");
+    const params = new URLSearchParams(w.location.search);
+    const code = params.get('code');
+    if (!!code) {
+        w.authScreen.style.display = 'none';
+        const data = new FormData();
+        data.append('code', code);
+        data.append('client_id', "http://localhost:4321");
+        data.append('redirect_uri', "http://localhost:4321");
+        data.append('grant_type',"authorization_code");
 
-    discoverLink(params.get('me'), "token_endpoint").then(tokenEndpoint => {
-        const req = new Request(tokenEndpoint, {
-          method: 'POST',
-          body: data,
-          mode: 'cors'
+        discoverLink(params.get('me'), "token_endpoint").then(tokenEndpoint => {
+            const req = new Request(tokenEndpoint, {
+              method: 'POST',
+              body: data,
+              mode: 'cors'
+            });
+            fetch(req).then(response => response.json()).then(r => {
+                const key = "accessToken:" + r.me;
+                localStorage.setItem(key, r.access_token);
+                startEditor(r.me, r.access_token, w);
+            }, error => {
+                alert(error);
+                w.postScreen.style.display = 'none';
+            });
         });
-        fetch(req).then(response => response.json()).then(r => {
-            const key = "accessToken:" + r.me;
-            localStorage.setItem(key, r.access_token);
-            startEditor(r.me, r.access_token, w);
-        }, error => {
-            alert(error);
-            w.postScreen.style.display = 'none';
-        });
-    });
-  } else {
-      w.authForm.onsubmit = function(evt){
-        evt.preventDefault();
-        const siteUrl = w.indie_auth_url.value;
-        getAccessToken(siteUrl).then(
-            token => startEditor(siteUrl, token, w)
-        ).catch(function(err) {
-            startAuthDance(siteUrl, w);
-        });
-        return false;
-      }
-  }
+    } else {
+        w.authForm.onsubmit = function(evt){
+            evt.preventDefault();
+            const siteUrl = w.indie_auth_url.value;
+            getAccessToken(siteUrl).then(
+                token => startEditor(siteUrl, token, w)
+            ).catch(
+                err => startAuthDance(siteUrl, w)
+            );
+            return false;
+        }
+    }
 
-  w.reset.click = () => localStorage.clear();
+    w.resetApp.onclick = () => localStorage.clear()
 })(window);
