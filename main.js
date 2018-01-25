@@ -1,9 +1,8 @@
 function discoverLink(url, linkName) {
-    const rels = ['token_endpoint', 'authorization_endpoint', 'micropub'];
-    const key = "urlDiscoveredLinks";
+    const key = "urlDiscoveredLinks:" + url;
     const readLinks = localStorage.getItem(key);
     if (!!readLinks) {
-        return new Promise((resolve, reject) => resolve(JSON.parse(readLinks)[linkName]));
+        return new Promise(resolve => resolve(JSON.parse(readLinks)[linkName]));
     } else {
         const siteReq = new Request(url, {
             method: 'GET',
@@ -12,9 +11,8 @@ function discoverLink(url, linkName) {
         return fetch(siteReq).then(response => response.text()).then(bodyHTML => {
             const rBody = document.createElement('html');
             rBody.innerHTML = bodyHTML;
-            const matches = [...rBody.getElementsByTagName('link')].filter(lnk => rels.indexOf(lnk.rel) >= 0);
             let readLinks = {};
-            matches.forEach(lnk => {
+            [...rBody.getElementsByTagName('link')].forEach(lnk => {
                 readLinks[lnk.rel] = lnk.href
             });
             localStorage.setItem(key, JSON.stringify(readLinks));
@@ -24,7 +22,7 @@ function discoverLink(url, linkName) {
 }
 
 function micropubConfig(mpEndpoint, token) {
-    const params = new URLSearchParams()
+    const params = new URLSearchParams();
     params.append('q', 'config');
     params.append('access_token', token);
     const req = new Request(mpEndpoint + '?' + params.toString(), {
@@ -34,13 +32,54 @@ function micropubConfig(mpEndpoint, token) {
     return fetch(req).then(response => response.json());
 }
 
-(function(w){
-  const params = new URLSearchParams(w.location.search);
+function getAccessToken(url) {
+    const key = "accessToken:" + url;
+    const accessToken = localStorage.getItem(key);
+    return new Promise((resolve, reject) => {
+        if (!!accessToken) {
+            resolve(accessToken);
+        } else {
+            reject();
+        }
+    });
+}
 
-  const code = params.get('code');
-  if (!!code) {
+function startEditor(siteUrl, token, w) {
     w.authScreen.style.display = 'none';
     w.postScreen.style.display = 'block';
+    discoverLink(siteUrl, "micropub").then(mpUrl => {
+        w.tokenField.value = token;
+        w.micropubForm.action = mpUrl;
+        micropubConfig(mpUrl, token).then(config => {
+            const mediaEndpoint = config['media-endpoint'];
+            if (!!mediaEndpoint) {
+                console.log("Media endpoint supported");
+                w.mediaForm.style.display = 'block';
+                w.mediaForm.action = mediaEndpoint;
+                w.mediaForm.onsubmit = function(evt){
+                    evt.preventDefault();
+                    return false;
+                }
+            } else {
+                console.log("No media endpoint, resort to inline upload");
+                w.micropubForm.enctype = "multipart/form-data";
+                w.inlineMediaField.style.display = 'inline-block';
+            }
+        })
+    });
+}
+
+function startAuthDance(siteUrl, w) {
+    discoverLink(siteUrl, "authorization_endpoint").then(authEndpoint => {
+        w.authForm.action = authEndpoint;
+        w.authForm.submit();
+    })
+}
+
+(function(w){
+  const params = new URLSearchParams(w.location.search);
+  const code = params.get('code');
+  if (!!code) {
     const data = new FormData();
     data.append('code', code);
     data.append('client_id', "http://localhost:4321");
@@ -54,26 +93,9 @@ function micropubConfig(mpEndpoint, token) {
           mode: 'cors'
         });
         fetch(req).then(response => response.json()).then(r => {
-            w.tokenField.value = r.access_token;
-            discoverLink(r.me, "micropub").then(mpUrl => {
-                w.micropubForm.action = mpUrl;
-                micropubConfig(mpUrl, r.access_token).then(config => {
-                    const mediaEndpoint = config['media-endpoint'];
-                    if (!!mediaEndpoint) {
-                        console.log("Media endpoint supported");
-                        w.mediaForm.style.display = 'block';
-                        w.mediaForm.action = mediaEndpoint;
-                        w.mediaForm.onsubmit = function(evt){
-                            evt.preventDefault();
-                            return false;
-                        }
-                    } else {
-                        console.log("No media endpoint, resort to inline upload");
-                        w.micropubForm.enctype = "multipart/form-data";
-                        w.inlineMediaField.style.display = 'inline-block';
-                    }
-                })
-            });
+            const key = "accessToken:" + r.me;
+            localStorage.setItem(key, r.access_token);
+            startEditor(r.me, r.access_token, w);
         }, error => {
             alert(error);
             w.postScreen.style.display = 'none';
@@ -82,11 +104,15 @@ function micropubConfig(mpEndpoint, token) {
   } else {
       w.authForm.onsubmit = function(evt){
         evt.preventDefault();
-        discoverLink(w.indie_auth_url.value, "authorization_endpoint").then(authEndpoint => {
-              w.authForm.action = authEndpoint;
-              w.authForm.submit();
+        const siteUrl = w.indie_auth_url.value;
+        getAccessToken(siteUrl).then(
+            token => startEditor(siteUrl, token, w)
+        ).catch(function(err) {
+            startAuthDance(siteUrl, w);
         });
         return false;
       }
   }
+
+  w.reset.click = () => localStorage.clear();
 })(window);
