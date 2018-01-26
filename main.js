@@ -70,15 +70,42 @@ function obtainToken(code, tokenEndpoint) {
 }
 
 
+function refreshMedia(mediaEndpoint, w) {
+    const mediaList = w.recentMedia;
+    while (mediaList.lastChild) {
+        mediaList.removeChild(mediaList.lastChild);
+    }
+    return function(){
+        fetch(mediaEndpoint).then(r => r.json()).then(fileList => {
+            fileList.forEach(filename => {
+                const li = document.createElement('li');
+                li.innerHTML = filename;
+                mediaList.appendChild(li);
+            })
+        })
+    }
+}
+
+
 function setUpMedia(mediaEndpoint, w) {
     if (!!mediaEndpoint) {
         console.log("Media endpoint supported");
         w.mediaForm.style.display = 'block';
         w.mediaForm.action = mediaEndpoint;
+        const reloadMEdiaList = refreshMedia(mediaEndpoint, w);
         w.mediaForm.onsubmit = function(evt){
             evt.preventDefault();
+            const fd = new FormData();
+            [...w.mediaFiles.files].forEach(f => fd.append('file', f));
+            const req = new Request(mediaEndpoint, {
+                method: 'POST',
+                body: fd,
+                mode: 'cors'
+            });
+            fetch(req).then(reloadMEdiaList);
             return false;
-        }
+        };
+        reloadMEdiaList();
     } else {
         console.log("No media endpoint, resort to inline upload");
         w.micropubForm.enctype = "multipart/form-data";
