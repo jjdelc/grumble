@@ -70,13 +70,15 @@ function obtainToken(code, tokenEndpoint) {
 }
 
 
-function refreshMedia(mediaEndpoint, w) {
+function refreshMedia(mediaEndpoint, token, w) {
     const mediaList = w.recentMedia;
     return function(){
         while (mediaList.lastChild) {
             mediaList.removeChild(mediaList.lastChild);
         }
-        fetch(mediaEndpoint).then(r => r.json()).then(fileList => {
+        const params = new URLSearchParams();
+        params.append('access_token', token);
+        fetch(mediaEndpoint + '?' + params.toString()).then(r => r.json()).then(fileList => {
             fileList.forEach(filename => {
                 const li = document.createElement('li');
                 li.innerHTML = filename;
@@ -87,12 +89,12 @@ function refreshMedia(mediaEndpoint, w) {
 }
 
 
-function setUpMedia(mediaEndpoint, w) {
+function setUpMedia(mediaEndpoint, token, w) {
     if (!!mediaEndpoint) {
         console.log("Media endpoint supported");
         w.mediaForm.style.display = 'block';
         w.mediaForm.action = mediaEndpoint;
-        const reloadMediaList = refreshMedia(mediaEndpoint, w);
+        const reloadMediaList = refreshMedia(mediaEndpoint, token, w);
         w.mediaForm.onsubmit = function(evt){
             evt.preventDefault();
             const fd = new FormData();
@@ -120,14 +122,14 @@ function startEditor(siteUrl, token, w) {
     w.authSection.style.display = 'none';
     w.postSection.style.display = 'block';
     w.tokenField.value = token;
-    w.tokenFieldMedia.value = token
+    w.tokenFieldMedia.value = token;
     discoverLink(siteUrl, "micropub").then(mpUrl => {
         w.micropubForm.action = mpUrl;
         return mpUrl
     }).then(
         mpUrl => micropubConfig(mpUrl, token)
     ).then(config => {
-        setUpMedia(config['media-endpoint'], w);
+        setUpMedia(config['media-endpoint'], token, w);
     })
 }
 
