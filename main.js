@@ -72,10 +72,10 @@ function obtainToken(code, tokenEndpoint) {
 
 function refreshMedia(mediaEndpoint, w) {
     const mediaList = w.recentMedia;
-    while (mediaList.lastChild) {
-        mediaList.removeChild(mediaList.lastChild);
-    }
     return function(){
+        while (mediaList.lastChild) {
+            mediaList.removeChild(mediaList.lastChild);
+        }
         fetch(mediaEndpoint).then(r => r.json()).then(fileList => {
             fileList.forEach(filename => {
                 const li = document.createElement('li');
@@ -92,7 +92,7 @@ function setUpMedia(mediaEndpoint, w) {
         console.log("Media endpoint supported");
         w.mediaForm.style.display = 'block';
         w.mediaForm.action = mediaEndpoint;
-        const reloadMEdiaList = refreshMedia(mediaEndpoint, w);
+        const reloadMediaList = refreshMedia(mediaEndpoint, w);
         w.mediaForm.onsubmit = function(evt){
             evt.preventDefault();
             const fd = new FormData();
@@ -102,10 +102,13 @@ function setUpMedia(mediaEndpoint, w) {
                 body: fd,
                 mode: 'cors'
             });
-            fetch(req).then(reloadMEdiaList);
+            fetch(req).then(() => {
+                reloadMediaList();
+                w.mediaFiles.value = ''
+            });
             return false;
         };
-        reloadMEdiaList();
+        reloadMediaList();
     } else {
         console.log("No media endpoint, resort to inline upload");
         w.micropubForm.enctype = "multipart/form-data";
@@ -117,6 +120,7 @@ function startEditor(siteUrl, token, w) {
     w.authSection.style.display = 'none';
     w.postSection.style.display = 'block';
     w.tokenField.value = token;
+    w.tokenFieldMedia.value = token
     discoverLink(siteUrl, "micropub").then(mpUrl => {
         w.micropubForm.action = mpUrl;
         return mpUrl

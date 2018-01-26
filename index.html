@@ -29,6 +29,7 @@
     <form action="" method="POST" enctype="multipart/form-data" id="mediaForm" style="display: none">
         <h2>Media support</h2>
         <input type="file" multiple name="file" id="mediaFiles" accept="image/*" required/>
+        <input type="hidden" name="access_token" value="" id="tokenFieldMedia"/>
         <input type="submit">
     </form>
         <ol id="recentMedia"></ol>
