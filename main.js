@@ -120,8 +120,8 @@ const editorComponent = {
                 this.postImage = null;
             }
         },
-        newPost() {
-
+        submit() {
+            alert("submit!");
         }
     }
 };

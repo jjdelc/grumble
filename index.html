@@ -37,7 +37,7 @@
 </script>
 
 <script type="text/x-template" id="postEditor">
-    <form :action="micropuburl" method="POST" enctype="multipart/form-data">
+    <form :action="micropuburl" @submit="submit" method="POST" enctype="multipart/form-data">
         <div class="post-editor">
             <p><input type="text" name="name" v-model="postTitle" placeholder="Optional title"/></p>
             <p><textarea placeholder="blog post here" v-model="postBody" name="content"></textarea></p>
