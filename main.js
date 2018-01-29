@@ -70,112 +70,151 @@ function obtainToken(code, tokenEndpoint) {
 }
 
 
-function refreshMedia(mediaEndpoint, token, w) {
-    const mediaList = w.recentMedia;
-    return function(){
-        while (mediaList.lastChild) {
-            mediaList.removeChild(mediaList.lastChild);
+const authComponent = {
+    template: '#authComponent',
+    data() {
+        return {
+            siteUrl: "",
+            authTarget: "",
         }
-        const params = new URLSearchParams();
-        params.append('access_token', token);
-        fetch(mediaEndpoint + '?' + params.toString()).then(r => r.json()).then(fileList => {
-            fileList.forEach(filename => {
-                const li = document.createElement('li');
-                li.innerHTML = filename;
-                mediaList.appendChild(li);
-            })
-        })
+    },
+    methods: {
+        authSite(evt){
+            evt.preventDefault();
+            const siteUrl = this.siteUrl;
+            return TokenManager.get(siteUrl).then(
+                token => {
+                    this.$emit('authobtained', {
+                        token,
+                        siteUrl: this.siteUrl
+                    });
+                }
+            ).catch(() => {
+                discoverLink(siteUrl, "authorization_endpoint").then(authEndpoint => {
+                    this.authTarget = authEndpoint;
+                    evt.target.submit();
+                })
+            });
+        }
     }
-}
+};
 
 
-function setUpMedia(mediaEndpoint, token, w) {
-    if (!!mediaEndpoint) {
-        console.log("Media endpoint supported");
-        w.mediaForm.style.display = 'block';
-        w.mediaForm.action = mediaEndpoint;
-        const reloadMediaList = refreshMedia(mediaEndpoint, token, w);
-        w.mediaForm.onsubmit = function(evt){
+const editorComponent = {
+    template: '#postEditor',
+    props: ['micropuburl', 'token'],
+    data() {
+        return {
+            micropuburl: this.micropuburl,
+            token: this.token,
+            postImage: null,
+            postBody: "",
+            postTitle: ""
+        }
+    },
+    methods: {
+        loadFile(files) {
+            if (files.length > 0) {
+                this.postImage = files[0]
+            } else {
+                this.postImage = null;
+            }
+        },
+        newPost() {
+
+        }
+    }
+};
+
+
+const mediaComponent = {
+    template: '#mediaManager',
+    props: ['token', 'mediaurl'],
+    data() {
+        return {
+            token: this.token,
+            mediaurl: this.mediaurl,
+            fileList: [],
+            mediaFiles: []
+        }
+    },
+    methods: {
+        discover(mediaUrl, token, ref){
+            const params = new URLSearchParams();
+            params.append('access_token', token);
+            fetch(mediaUrl + '?' + params.toString()).then(
+                r => r.json()
+            ).then(fileList => {
+                ref.fileList = fileList
+            });
+        },
+        loadFiles(files) {
+            [...files].forEach(f => this.mediaFiles.push(f));
+        },
+        uploadFiles(evt){
             evt.preventDefault();
             const fd = new FormData();
-            [...w.mediaFiles.files].forEach(f => fd.append('file', f));
-            const req = new Request(mediaEndpoint, {
+            fd.append('access_token', this.token);
+            this.mediaFiles.forEach(f => fd.append('file', f));
+            const req = new Request(this.mediaurl, {
                 method: 'POST',
                 body: fd,
                 mode: 'cors'
             });
             fetch(req).then(() => {
-                reloadMediaList();
-                w.mediaFiles.value = ''
+                this.discover(this.mediaurl, this.token, this);
             });
-            return false;
-        };
-        reloadMediaList();
-    } else {
-        console.log("No media endpoint, resort to inline upload");
-        w.micropubForm.enctype = "multipart/form-data";
-        w.inlineMediaField.style.display = 'inline-block';
+        }
     }
-}
+};
 
-function startEditor(siteUrl, token, w) {
-    w.authSection.style.display = 'none';
-    w.postSection.style.display = 'block';
-    w.tokenField.value = token;
-    w.tokenFieldMedia.value = token;
-    discoverLink(siteUrl, "micropub").then(mpUrl => {
-        w.micropubForm.action = mpUrl;
-        return mpUrl
-    }).then(
-        mpUrl => micropubConfig(mpUrl, token)
-    ).then(config => {
-        setUpMedia(config['media-endpoint'], token, w);
-    })
-}
-
-function startAuthDance(siteUrl, w) {
-    discoverLink(siteUrl, "authorization_endpoint").then(authEndpoint => {
-        w.authForm.action = authEndpoint;
-        w.authForm.submit();
-    })
-}
-
-function editorScreen(me, code, w) {
-    discoverLink(me, "token_endpoint").then(
-        tokenEndpoint => obtainToken(code, tokenEndpoint)
-    ).then(accessToken => {
-        TokenManager.store(me, accessToken);
-        startEditor(me, accessToken, w);
-    }, error => {
-        alert(error);
-        w.postSection.style.display = 'none';
-    });
-}
-
-
-function authScreen(w) {
-    w.authForm.onsubmit = function(evt){
-        evt.preventDefault();
-        const siteUrl = w.indie_auth_url.value;
-        TokenManager.get(siteUrl).then(
-            token => startEditor(siteUrl, token, w)
-        ).catch(
-            () => startAuthDance(siteUrl, w)
-        );
-        return false;
+const mainApp = new Vue({
+    el: '#mainApp',
+    data: {
+        currentScreen: 'authSection',
+        token: null,
+        mediaurl: null,
+        micropuburl: null
+    },
+    methods: {
+        resetApp(){
+            localStorage.clear();
+            console.log('localStorage cleared');
+        },
+        showEditor(auth){
+            this.token = auth.token;
+            this.currentScreen = 'editorSection';
+            discoverLink(auth.siteUrl, "micropub").then(mpUrl => {
+                this.micropuburl = mpUrl;
+                return micropubConfig(mpUrl, auth.token);
+            }).then(config => {
+                this.mediaurl = config['media-endpoint'];
+                this.$refs.media.discover(this.mediaurl, this.token,
+                    this.$refs.media);
+            });
+        },
+        negotiateCode(siteUrl, code) {
+            discoverLink(siteUrl, "token_endpoint").then(
+                tokenEndpoint => obtainToken(code, tokenEndpoint)
+            ).then(accessToken => {
+                TokenManager.store(siteUrl, accessToken);
+                this.showEditor({
+                    siteUrl,
+                    token: accessToken
+                });
+            });
+        }
+    },
+    components: {
+        'post-editor': editorComponent,
+        'auth-form': authComponent,
+        'media-manager': mediaComponent
     }
+});
+
+
+const params = new URLSearchParams(location.search);
+const code = params.get('code');
+if (!!code) {
+    mainApp.negotiateCode(params.get('me'), code);
 }
-
-
-(function(w){
-    const params = new URLSearchParams(w.location.search);
-    const code = params.get('code');
-    if (!!code) {
-        w.authSection.style.display = 'none';
-        editorScreen(params.get('me'), code, w);
-    } else {
-        authScreen(w);
-    }
-
-    w.resetApp.onclick = () => localStorage.clear()
-})(window);
