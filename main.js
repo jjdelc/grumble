@@ -63,7 +63,7 @@ const CurrentBlog = {
     get(){
         return localStorage.getItem(CurrentBlog.key)
     }
-}
+};
 
 function obtainToken(code, tokenEndpoint) {
     const data = new FormData();
@@ -92,7 +92,6 @@ const authComponent = {
     },
     methods: {
         authSite(evt){
-            evt.preventDefault();
             const siteUrl = this.siteUrl;
             return TokenManager.get(siteUrl).then(
                 token => {
@@ -102,10 +101,11 @@ const authComponent = {
                     });
                 }
             ).catch(() => {
-                discoverLink(siteUrl, "authorization_endpoint").then(authEndpoint => {
-                    this.authTarget = authEndpoint;
-                    evt.target.submit();
-                })
+                discoverLink(siteUrl, "authorization_endpoint").then(
+                    authEndpoint => this.authTarget = authEndpoint
+                ).then(
+                    () => evt.target.submit()
+                )
             });
         }
     }
@@ -121,7 +121,9 @@ const editorComponent = {
             token: this.token,
             postImage: null,
             postBody: "",
-            postTitle: ""
+            postTitle: "",
+            postType: "entry",
+            postURL: "has value",
         }
     },
     methods: {
@@ -133,7 +135,20 @@ const editorComponent = {
             }
         },
         submit() {
-            alert("submit!");
+            const data = new FormData();
+            data.append('name', this.postTitle);
+            data.append('content', this.postBody);
+            data.append('access_token', this.token);
+            data.append('h', this.postType);
+            if (!!this.postImage) {
+                data.append('photo', this.postImage);
+            }
+            const request = new Request(this.micropuburl, {
+                method: 'POST',
+                data: data,
+                mode: 'cors'
+            });
+            fetch(request).then(r => this.postURL = r.headers['Location']);
         }
     }
 };
@@ -216,7 +231,7 @@ const mainApp = new Vue({
                 this.$refs.media.discover(this.mediaurl, this.token,
                     this.$refs.media);
             });
-            CurrentBlog.set(auth.me);
+            CurrentBlog.set(auth.siteUrl);
         },
         negotiateCode(siteUrl, code) {
             discoverLink(siteUrl, "token_endpoint").then(
@@ -230,7 +245,6 @@ const mainApp = new Vue({
             });
         },
         goHome(evt){
-            evt.preventDefault();
             CurrentBlog.clear();
             this.requestAuth();
         }
@@ -250,9 +264,9 @@ if (!!code) {
 } else {
     const siteUrl = CurrentBlog.get();
     if (!!siteUrl) {
-        mainApp.showEditor({
+        TokenManager.get(siteUrl).then(token => mainApp.showEditor({
             siteUrl: siteUrl,
-            token: TokenManager.get(siteUrl)
-        })
+            token
+        }))
     }
 }

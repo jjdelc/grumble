@@ -8,12 +8,12 @@
 
 <h1><a @click="goHome">Home</a>: {{siteUrl}}</h1>
 
-<div id="authSection" v-if="currentScreen === 'authSection'">
+<div v-if="currentScreen === 'authSection'">
     <auth-form v-on:authobtained="showEditor"></auth-form>
     <button @click="resetApp">Reset app</button>
 </div>
 
-<div id="postSection" v-if="currentScreen === 'editorSection'">
+<div v-if="currentScreen === 'editorSection'">
     <h1>New post</h1>
     <post-editor v-bind:token="token" v-bind:micropuburl="micropuburl"></post-editor>
     <media-manager v-bind:token="token" v-bind:mediaurl="mediaurl" ref="media"></media-manager>
@@ -22,7 +22,7 @@
 <script src="vue.js"></script>
 
 <script type="text/x-template" id="authComponent">
-    <form v-bind:action="authTarget" @submit="authSite" method="get" id="authForm">
+    <form v-bind:action="authTarget" @submit.prevent="authSite" method="get">
         <p>
         <label for="indie_auth_url">Web Address:</label>
         <input id="indie_auth_url" type="url" name="me" v-model="siteUrl"
@@ -37,7 +37,7 @@
 </script>
 
 <script type="text/x-template" id="postEditor">
-    <form :action="micropuburl" @submit="submit" method="POST" enctype="multipart/form-data">
+    <form :action="micropuburl" @submit.prevent="submit" method="POST" enctype="">
         <div class="post-editor">
             <p><input type="text" name="name" v-model="postTitle" placeholder="Optional title"/></p>
             <p><textarea placeholder="blog post here" v-model="postBody" name="content"></textarea></p>
@@ -46,8 +46,9 @@
                       accept="image/*"></p>
         </div>
         <p><button type="submit">Post</button></p>
-        <input type="hidden" name="h" value="entry"/>
+        <input type="hidden" name="h" v-bind:value="postType"/>
         <input type="hidden" v-bind:value="token" name="access_token"/>
+        <p><input :value="postURL"></p>
     </form>
 </script>
 
@@ -59,7 +60,7 @@
           method="POST" enctype="multipart/form-data">
         <input type="file"
                @change="loadFiles($event.target.files)"
-               multiple name="file" id="mediaFiles" accept="image/*" required/>
+               multiple name="file" accept="image/*" required/>
         <input type="hidden" v-bind:value="token" name="access_token"/>
         <input type="submit">
     </form>
