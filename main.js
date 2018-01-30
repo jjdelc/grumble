@@ -123,7 +123,7 @@ const editorComponent = {
             postBody: "",
             postTitle: "",
             postType: "entry",
-            postURL: "has value",
+            postURL: "",
         }
     },
     methods: {
@@ -134,7 +134,7 @@ const editorComponent = {
                 this.postImage = null;
             }
         },
-        submit() {
+        submitPost() {
             const data = new FormData();
             data.append('name', this.postTitle);
             data.append('content', this.postBody);
@@ -178,8 +178,7 @@ const mediaComponent = {
         loadFiles(files) {
             [...files].forEach(f => this.mediaFiles.push(f));
         },
-        uploadFiles(evt){
-            evt.preventDefault();
+        uploadFiles(){
             const fd = new FormData();
             fd.append('access_token', this.token);
             this.mediaFiles.forEach(f => fd.append('file', f));
@@ -236,15 +235,15 @@ const mainApp = new Vue({
         negotiateCode(siteUrl, code) {
             discoverLink(siteUrl, "token_endpoint").then(
                 tokenEndpoint => obtainToken(code, tokenEndpoint)
-            ).then(accessToken => {
-                TokenManager.store(siteUrl, accessToken);
+            ).then(token => {
+                TokenManager.store(siteUrl, token);
                 this.showEditor({
                     siteUrl,
-                    token: accessToken
+                    token
                 });
             });
         },
-        goHome(evt){
+        goHome(){
             CurrentBlog.clear();
             this.requestAuth();
         }

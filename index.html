@@ -16,13 +16,15 @@
 <div v-if="currentScreen === 'editorSection'">
     <h1>New post</h1>
     <post-editor v-bind:token="token" v-bind:micropuburl="micropuburl"></post-editor>
+    <h2>Media support</h2>
     <media-manager v-bind:token="token" v-bind:mediaurl="mediaurl" ref="media"></media-manager>
 </div>
 
 <script src="vue.js"></script>
 
 <script type="text/x-template" id="authComponent">
-    <form v-bind:action="authTarget" @submit.prevent="authSite" method="get">
+<div class="authSection">
+    <form :action="authTarget" @submit.prevent="authSite" method="GET">
         <p>
         <label for="indie_auth_url">Web Address:</label>
         <input id="indie_auth_url" type="url" name="me" v-model="siteUrl"
@@ -34,10 +36,14 @@
         <input type="hidden" name="scope" value="create update"/>
         <input type="hidden" name="response_type" value="code"/>
     </form>
+</div>
 </script>
 
 <script type="text/x-template" id="postEditor">
-    <form :action="micropuburl" @submit.prevent="submit" method="POST" enctype="">
+<div class="postSection">
+    <form :action="micropuburl"
+          @submit.prevent="submitPost"
+          method="POST" enctype="multipart/form-data">
         <div class="post-editor">
             <p><input type="text" name="name" v-model="postTitle" placeholder="Optional title"/></p>
             <p><textarea placeholder="blog post here" v-model="postBody" name="content"></textarea></p>
@@ -50,13 +56,13 @@
         <input type="hidden" v-bind:value="token" name="access_token"/>
         <p><input :value="postURL"></p>
     </form>
+</div>
 </script>
 
 <script type="text/x-template" id="mediaManager">
-<div id="mediaSection">
-    <h2>Media support</h2>
-    <form v-bind:action="mediaurl"
-          @submit="uploadFiles"
+<div class="mediaSection">
+    <form :action="mediaurl"
+          @submit.prevent="uploadFiles"
           method="POST" enctype="multipart/form-data">
         <input type="file"
                @change="loadFiles($event.target.files)"
