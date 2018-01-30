@@ -52,6 +52,18 @@ const TokenManager = {
     }
 };
 
+const CurrentBlog = {
+    key: 'currentBlog',
+    clear(){
+        localStorage.removeItem(CurrentBlog.key);
+    },
+    set(siteUrl){
+        localStorage.setItem(CurrentBlog.key, siteUrl)
+    },
+    get(){
+        return localStorage.getItem(CurrentBlog.key)
+    }
+}
 
 function obtainToken(code, tokenEndpoint) {
     const data = new FormData();
@@ -181,6 +193,15 @@ const mainApp = new Vue({
             localStorage.clear();
             console.log('localStorage cleared');
         },
+        reset(){
+            this.token = null;
+            this.mediaurl = null;
+            this.micropuburl = null;
+        },
+        requestAuth(){
+            this.currentScreen = 'authSection';
+            this.reset()
+        },
         showEditor(auth){
             this.token = auth.token;
             this.currentScreen = 'editorSection';
@@ -192,6 +213,7 @@ const mainApp = new Vue({
                 this.$refs.media.discover(this.mediaurl, this.token,
                     this.$refs.media);
             });
+            CurrentBlog.set(auth.me);
         },
         negotiateCode(siteUrl, code) {
             discoverLink(siteUrl, "token_endpoint").then(
@@ -203,6 +225,11 @@ const mainApp = new Vue({
                     token: accessToken
                 });
             });
+        },
+        goHome(evt){
+            evt.preventDefault();
+            CurrentBlog.clear();
+            this.requestAuth();
         }
     },
     components: {
@@ -217,4 +244,12 @@ const params = new URLSearchParams(location.search);
 const code = params.get('code');
 if (!!code) {
     mainApp.negotiateCode(params.get('me'), code);
+} else {
+    const siteUrl = CurrentBlog.get();
+    if (!!siteUrl) {
+        mainApp.showEditor({
+            siteUrl: siteUrl,
+            token: TokenManager.get(siteUrl)
+        })
+    }
 }
