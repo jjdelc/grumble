@@ -186,6 +186,7 @@ const mainApp = new Vue({
         currentScreen: 'authSection',
         token: null,
         mediaurl: null,
+        siteUrl: null,
         micropuburl: null
     },
     methods: {
@@ -195,6 +196,7 @@ const mainApp = new Vue({
         },
         reset(){
             this.token = null;
+            this.siteUrl = null;
             this.mediaurl = null;
             this.micropuburl = null;
         },
@@ -205,6 +207,7 @@ const mainApp = new Vue({
         showEditor(auth){
             this.token = auth.token;
             this.currentScreen = 'editorSection';
+            this.siteUrl = auth.siteUrl;
             discoverLink(auth.siteUrl, "micropub").then(mpUrl => {
                 this.micropuburl = mpUrl;
                 return micropubConfig(mpUrl, auth.token);
