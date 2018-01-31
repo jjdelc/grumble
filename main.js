@@ -24,10 +24,12 @@ function discoverLink(url, linkName) {
 function micropubConfig(mpEndpoint, token) {
     const params = new URLSearchParams();
     params.append('q', 'config');
-    params.append('access_token', token);
     const req = new Request(mpEndpoint + '?' + params.toString(), {
         method: 'GET',
         mode: 'cors',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        }
     });
     return fetch(req).then(response => response.json());
 }
@@ -170,8 +172,11 @@ const mediaComponent = {
     methods: {
         discover(mediaUrl, token){
             const params = new URLSearchParams();
-            params.append('access_token', token);
-            fetch(mediaUrl + '?' + params.toString()).then(
+            fetch(mediaUrl + '?' + params.toString(), {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            }).then(
                 r => r.json()
             ).then(fileList => {
                 this.fileList = fileList
