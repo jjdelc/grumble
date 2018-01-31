@@ -117,8 +117,6 @@ const editorComponent = {
     props: ['micropuburl', 'token'],
     data() {
         return {
-            //micropuburl: this.micropuburl,
-            //token: this.token,
             postImage: null,
             postBody: "",
             postTitle: "",
@@ -135,24 +133,24 @@ const editorComponent = {
             }
         },
         submitPost() {
-            console.log(this);
-            console.log(this.postTitle);
-            console.log(this.micropuburl);
-            console.log(this.token);
             const data = new FormData();
             data.append('name', this.postTitle);
             data.append('content', this.postBody);
-            data.append('access_token', this.token);
             data.append('h', this.postType);
             if (!!this.postImage) {
                 data.append('photo', this.postImage);
             }
-            const request = new Request(this.micropuburl, {
+            const token = this.token;
+            fetch(this.micropuburl, {
                 method: 'POST',
                 body: data,
-                mode: 'cors'
+                mode: 'cors',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            }).then(r => {
+                this.postURL = r.headers.get('Location')
             });
-            fetch(request).then(r => this.postURL = r.headers['Location']);
         }
     }
 };
@@ -171,7 +169,6 @@ const mediaComponent = {
     },
     methods: {
         discover(mediaUrl, token){
-            console.log(this);
             const params = new URLSearchParams();
             params.append('access_token', token);
             fetch(mediaUrl + '?' + params.toString()).then(
