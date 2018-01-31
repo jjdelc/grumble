@@ -55,7 +55,10 @@
         </div>
         <p><button type="submit">Post</button></p>
         <input type="hidden" name="h" v-bind:value="postType"/>
-        <p><input :value="postURL"></p>
+        <p v-show="postURL !== ''">
+            <a :href="postURL" target="_blank">View post</a>
+            <input :value="postURL">
+        </p>
     </form>
 </div>
 </script>
