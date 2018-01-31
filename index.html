@@ -57,7 +57,7 @@
         <input type="hidden" name="h" v-bind:value="postType"/>
         <p v-show="postURL !== ''">
             <a :href="postURL" target="_blank">View post</a>
-            <input :value="postURL">
+            <input :value="postURL" readonly>
         </p>
     </form>
 </div>
