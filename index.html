@@ -50,7 +50,7 @@
             <p><input type="text" name="name" v-model="postTitle" placeholder="Optional title"/></p>
             <p><textarea placeholder="blog post here" v-model="postBody" name="content"></textarea></p>
             <p><input type="file" name="photo"
-                      @change="loadFile($evt.target.files)"
+                      @change="loadFile($event.target.files)"
                       accept="image/*"></p>
         </div>
         <p><button type="submit">Post</button></p>
