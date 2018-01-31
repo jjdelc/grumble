@@ -117,8 +117,8 @@ const editorComponent = {
     props: ['micropuburl', 'token'],
     data() {
         return {
-            micropuburl: this.micropuburl,
-            token: this.token,
+            //micropuburl: this.micropuburl,
+            //token: this.token,
             postImage: null,
             postBody: "",
             postTitle: "",
@@ -135,6 +135,10 @@ const editorComponent = {
             }
         },
         submitPost() {
+            console.log(this);
+            console.log(this.postTitle);
+            console.log(this.micropuburl);
+            console.log(this.token);
             const data = new FormData();
             data.append('name', this.postTitle);
             data.append('content', this.postBody);
@@ -145,7 +149,7 @@ const editorComponent = {
             }
             const request = new Request(this.micropuburl, {
                 method: 'POST',
-                data: data,
+                body: data,
                 mode: 'cors'
             });
             fetch(request).then(r => this.postURL = r.headers['Location']);
@@ -166,13 +170,14 @@ const mediaComponent = {
         }
     },
     methods: {
-        discover(mediaUrl, token, ref){
+        discover(mediaUrl, token){
+            console.log(this);
             const params = new URLSearchParams();
             params.append('access_token', token);
             fetch(mediaUrl + '?' + params.toString()).then(
                 r => r.json()
             ).then(fileList => {
-                ref.fileList = fileList
+                this.fileList = fileList
             });
         },
         loadFiles(files) {
@@ -188,7 +193,7 @@ const mediaComponent = {
                 mode: 'cors'
             });
             fetch(req).then(() => {
-                this.discover(this.mediaurl, this.token, this);
+                this.discover(this.mediaurl, this.token);
             });
         }
     }
@@ -227,8 +232,7 @@ const mainApp = new Vue({
                 return micropubConfig(mpUrl, auth.token);
             }).then(config => {
                 this.mediaurl = config['media-endpoint'];
-                this.$refs.media.discover(this.mediaurl, this.token,
-                    this.$refs.media);
+                this.$refs.media.discover(this.mediaurl, this.token);
             });
             CurrentBlog.set(auth.siteUrl);
         },
