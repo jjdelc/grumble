@@ -182,14 +182,16 @@ const mediaComponent = {
         },
         uploadFiles(){
             const fd = new FormData();
-            fd.append('access_token', this.token);
             this.mediaFiles.forEach(f => fd.append('file', f));
-            const req = new Request(this.mediaurl, {
+            const token = this.token;
+            fetch(this.mediaurl, {
                 method: 'POST',
                 body: fd,
-                mode: 'cors'
-            });
-            fetch(req).then(() => {
+                mode: 'cors',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            }).then(() => {
                 this.discover(this.mediaurl, this.token);
             });
         }

@@ -55,7 +55,6 @@
         </div>
         <p><button type="submit">Post</button></p>
         <input type="hidden" name="h" v-bind:value="postType"/>
-        <input type="hidden" v-bind:value="token" name="access_token"/>
         <p><input :value="postURL"></p>
     </form>
 </div>
@@ -69,7 +68,6 @@
         <input type="file"
                @change="loadFiles($event.target.files)"
                multiple name="file" accept="image/*" required/>
-        <input type="hidden" v-bind:value="token" name="access_token"/>
         <input type="submit">
     </form>
     <ol v-if="fileList.length > 0">
