@@ -2,11 +2,11 @@
 <head>
 <title>Micropub client</title>
 <meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1" />
+<link href="style.css" rel="stylesheet"/>
 </head>
 <body>
 <div id="mainApp">
-
-<h1><a @click="goHome">Home</a>: {{siteUrl}}</h1>
 
 <div v-if="currentScreen === 'authSection'">
     <auth-form v-on:authobtained="showEditor"></auth-form>
@@ -14,6 +14,7 @@
 </div>
 
 <div v-if="currentScreen === 'editorSection'">
+<h1><a @click="goHome">Home</a>: {{siteUrl}}</h1>
     <h1>New post</h1>
     <post-editor v-bind:token="token" v-bind:micropuburl="micropuburl"></post-editor>
     <h2>Media support</h2>
@@ -28,7 +29,7 @@
 <div class="authSection">
     <form :action="authTarget" @submit.prevent="authSite" method="GET">
         <p>
-        <label for="indie_auth_url">Web Address:</label>
+        <label for="indie_auth_url">Indieweb log in:</label>
         <input id="indie_auth_url" type="url" name="me" v-model="siteUrl"
                required placeholder="yourdomain.com" />
         </p>
