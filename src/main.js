@@ -210,7 +210,16 @@ const mainApp = new Vue({
         token: null,
         mediaurl: null,
         siteUrl: null,
-        micropuburl: null
+        micropuburl: null,
+        mediaExpanded: false,
+    },
+    computed: {
+        mediaChevron(){
+            return {
+                'fa fa-chevron-right': !this.mediaExpanded,
+                'fa fa-chevron-down': this.mediaExpanded
+            }
+        }
     },
     methods: {
         resetApp(){
