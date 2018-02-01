@@ -64,17 +64,20 @@
                     placeholder="Optional title"/></p>
             <p><input type="file" name="photo"
                       @change="loadFile($event.target.files)"
+                      ref="fileField"
                       accept="image/*"></p>
             <p><textarea
                     placeholder="blog post here"
                     class="post-body"
                     v-model="postBody" name="content"></textarea></p>
         </div>
-        <p><button type="submit">Post</button></p>
         <input type="hidden" name="h" v-bind:value="postType"/>
-        <p v-show="postURL !== ''">
+        <p>
+            <button type="submit">Post</button>
+        <span v-show="postURL !== ''">
             <a :href="postURL" target="_blank">View post</a>
             <input :value="postURL" readonly>
+        </span>
         </p>
     </form>
 </div>
@@ -87,7 +90,9 @@
           method="POST" enctype="multipart/form-data">
         <input type="file"
                @change="loadFiles($event.target.files)"
-               multiple name="file" accept="image/*" required/>
+               multiple name="file" accept="image/*"
+               ref="fileField"
+               required/>
         <input type="submit">
     </form>
     <ol v-if="fileList.length > 0" class="media-list">
@@ -95,7 +100,7 @@
             <img v-bind:src="fileUrl">
             <input type="text"
                    class="file-url"
-                   readonly v-bind:value="fileUrl" size="30">
+                   readonly v-bind:value="'![](' + fileUrl + ')'" size="30">
         </li>
     </ol>
 </div>

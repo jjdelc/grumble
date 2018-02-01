@@ -151,8 +151,16 @@ const editorComponent = {
                     'Authorization': `Bearer ${token}`,
                 }
             }).then(r => {
-                this.postURL = r.headers.get('Location')
+                this.postURL = r.headers.get('Location');
+                this.clearFields();
             });
+        },
+        clearFields(){
+            this.postBody = "";
+            this.postTitle = "";
+            this.postURL = "";
+            this.postImage = null;
+            this.$refs.fileField.value = '';
         }
     }
 };
@@ -198,6 +206,7 @@ const mediaComponent = {
                 }
             }).then(() => {
                 this.discover(this.mediaurl, this.token);
+                this.$refs.fileField.value = '';
             });
         }
     }

@@ -8,34 +8,16 @@ $blue: #0E53A7;
 $yellow: #FFBA00;
 $orange: #FF7600;
 $dark-blue: #04346C;
+$max-screen-size: 40rem;
 
-.authSection {
-  display: block;
-  margin: 0 auto;
-  max-width: 40rem;
-  text-align: center;
-  label {
-    font-size: 1rem;
-    color: #AAA;
-    display: block;
-  }
-  input[type=url] {
-    display: block;
-    width: 100%;
-    font-size: 1.5rem;
-    border-width: 0 0 1px 0;
-    border-color: #AAAAAA;
-    padding: 0.25rem 0;
-    line-height: 180%;
-    text-align: center;
-  }
+#mainApp {
 }
 
 ::placeholder {
   color: #DDDDDD;
 }
 
-button[type=submit] {
+button, input[type=submit] {
   background-color: $blue;
   color: white;
   font-size: 0.9rem;
@@ -47,9 +29,12 @@ button[type=submit] {
 $bar-height: 3rem;
 
 .top-bar {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: row;
   height: $bar-height;
+  border-bottom: 1px solid #AAAAAA;
+  box-shadow: 0 0px 3px #CCC;
   a {
     flex: 0 0 auto;
     display: flex;
@@ -70,11 +55,41 @@ $bar-height: 3rem;
   }
 }
 
+.authSection {
+  display: block;
+  margin: 0 auto;
+  max-width: $max-screen-size;
+  text-align: center;
+  label {
+    font-size: 1rem;
+    color: #AAA;
+    display: block;
+  }
+  input[type=url] {
+    display: block;
+    width: 100%;
+    font-size: 1.5rem;
+    border-width: 0 0 1px 0;
+    border-color: #AAAAAA;
+    padding: 0.25rem 0;
+    line-height: 180%;
+    text-align: center;
+  }
+}
+
+
 .post-editor-screen {
+  display: flex;
+  flex-direction: column;
+  max-width: $max-screen-size;
+  margin: 0 auto;
+  min-height: 85vh;
+
   .post-type-title {
     font-size: 0.8rem;
     text-align: right;
     color: #AAAAAA;
+    flex: 0 0 auto;
   }
   .post-title {
     display: block;
@@ -90,6 +105,9 @@ $bar-height: 3rem;
     width: 100%;
     min-height: 40vh;
     resize: vertical;
+  }
+  .postSection {
+    flex: 0 0 auto;
   }
 }
 
