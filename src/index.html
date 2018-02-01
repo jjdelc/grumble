@@ -65,6 +65,7 @@
             <p><input type="file" name="photo"
                       @change="loadFile($event.target.files)"
                       ref="fileField"
+                      tabindex="-1"
                       accept="image/*"></p>
             <p><textarea
                     placeholder="blog post here"

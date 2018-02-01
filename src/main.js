@@ -84,6 +84,24 @@ function obtainToken(code, tokenEndpoint) {
 }
 
 
+function publishContent(endpoint, token, content) {
+    const data = new FormData();
+    data.append('name', content.title);
+    data.append('content', content.body);
+    data.append('h', content.type);
+    if (!!content.image) {
+        data.append('photo', content.image);
+    }
+    return fetch(endpoint, {
+        method: 'POST',
+        body: data,
+        mode: 'cors',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        }
+    }).then(r => r.headers.get('Location'));
+}
+
 const authComponent = {
     template: '#authComponent',
     data() {
@@ -135,24 +153,14 @@ const editorComponent = {
             }
         },
         submitPost() {
-            const data = new FormData();
-            data.append('name', this.postTitle);
-            data.append('content', this.postBody);
-            data.append('h', this.postType);
-            if (!!this.postImage) {
-                data.append('photo', this.postImage);
-            }
-            const token = this.token;
-            fetch(this.micropuburl, {
-                method: 'POST',
-                body: data,
-                mode: 'cors',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                }
-            }).then(r => {
-                this.postURL = r.headers.get('Location');
+            publishContent(this.micropuburl, this.token, {
+                title: this.postTitle,
+                body: this.postBody,
+                type: this.postType,
+                image: this.postImage
+            }).then(postURL => {
                 this.clearFields();
+                this.postURL = postURL;
             });
         },
         clearFields(){
@@ -171,8 +179,6 @@ const mediaComponent = {
     props: ['token', 'mediaurl'],
     data() {
         return {
-            token: this.token,
-            mediaurl: this.mediaurl,
             fileList: [],
             mediaFiles: []
         }
