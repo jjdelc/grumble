@@ -10,18 +10,26 @@
 <div id="mainApp">
 
 <div v-if="currentScreen === 'authSection'">
-    <auth-form v-on:authobtained="showEditor"></auth-form>
+    <auth-form v-on:authobtained="newPostComposer"></auth-form>
     <!--<button @click="resetApp">Reset app</button>-->
 </div>
 
-<div class="post-editor-screen" v-if="currentScreen === 'editorSection'">
+<div class="post-editor-screen"
+     v-if="currentScreen === 'newPostSection' || currentScreen === 'editPostSection'"
+>
 <div class="top-bar">
-    <a ><i class="fa fa-bars"></i></a>
+    <a @click.prevent="switchScreen"><i class="fa fa-bars"></i></a>
     <h1>{{siteUrl}}</h1>
     <a @click="signOut"><i class="fa fa-sign-out-alt"></i></a>
 </div>
+    <div v-if="currentScreen === 'newPostSection'">
     <h1 class="post-type-title">New post</h1>
-    <post-editor v-bind:token="token" v-bind:micropuburl="micropuburl"></post-editor>
+    <new-post v-bind:token="token" v-bind:micropuburl="micropuburl"></new-post>
+    </div>
+    <div v-if="currentScreen === 'editPostSection'">
+    <h1 class="post-type-title">Edit post</h1>
+    <edit-post v-bind:token="token" v-bind:micropuburl="micropuburl"></edit-post>
+    </div>
     <h2 @click="mediaExpanded = !mediaExpanded">Media
         <i :class="mediaChevron"></i>
     </h2>
@@ -52,8 +60,13 @@
 </div>
 </script>
 
-<script type="text/x-template" id="postEditor">
+<script type="text/x-template" id="newPostEditor">
 <div class="postSection">
+    <div class="post-overlay" v-show="showOverlay">
+        <span>
+        <i class="fa fa-sync fa-spin"></i>
+        </span>
+    </div>
     <form :action="micropuburl"
           @submit.prevent="submitPost"
           method="POST" enctype="multipart/form-data">
@@ -71,15 +84,54 @@
                     placeholder="blog post here"
                     class="post-body"
                     v-model="postBody" name="content"></textarea></p>
-        </div>
         <input type="hidden" name="h" v-bind:value="postType"/>
         <p>
             <button type="submit">Post</button>
-        <span v-show="postURL !== ''">
+            <span v-show="postURL !== ''">
             <a :href="postURL" target="_blank">View post</a>
             <input :value="postURL" readonly>
         </span>
         </p>
+        </div>
+    </form>
+</div>
+</script>
+
+<script type="text/x-template" id="editPostEditor">
+<div class="postSection">
+    <div class="post-overlay" v-show="showOverlay">
+        <span>
+        <i class="fa fa-sync fa-spin"></i>
+        </span>
+    </div>
+    <form :action="micropuburl"
+          @submit.prevent="editPost"
+          method="POST" enctype="multipart/form-data">
+        <div class="post-editor">
+            <p>
+                <input
+                    type="url" class="post-title" focus
+                    name="url" v-model="postEditUrl"
+                    placeholder="URL to edit"/>
+                <button @click.prevent="sourcePost">Go</button>
+            </p>
+            <div v-show="editing">
+            <p><input
+                    type="text" class="post-title" focus
+                    name="name" v-model="postTitle"
+                    placeholder="Optional title"/></p>
+            <p><textarea
+                    placeholder="blog post here"
+                    class="post-body"
+                    v-model="postBody" name="content"></textarea></p>
+            <p>
+                <button type="submit">Edit</button>
+                <span v-show="editSuccess">
+                <a :href="postEditUrl" target="_blank">View post</a>
+                <input :value="postEditUrl" readonly>
+            </p>
+        </div>
+        </div>
     </form>
 </div>
 </script>

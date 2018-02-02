@@ -102,13 +102,50 @@ function publishContent(endpoint, token, content) {
     }).then(r => r.headers.get('Location'));
 }
 
+function sourcePostProperties(endpoint, token, postUrl) {
+    const qs = new URLSearchParams();
+    qs.append('q', 'source');
+    qs.append('url', postUrl);
+
+    return fetch(`${endpoint}?` + qs.toString(), {
+        mode: 'cors',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        }
+    }).then(r => r.json()).then(attrs => {
+        return {
+            content: attrs.properties.content[0],
+            title: attrs.properties.name[0]
+        }
+    })
+}
+
+function updatePost(endpoint, token, data) {
+    const payload = {
+        action: 'update',
+        url: data.url,
+        replace: {
+            content: [data.content],
+            name: [data.title]
+        }
+    };
+    return fetch(endpoint, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        mode: 'cors',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+}
+
 
 function getMediaList(mediaUrl, token) {
     return fetch(mediaUrl, {
         headers: {
             'Authorization': `Bearer ${token}`,
         }
-    }).then(r => r.json())
+    }).then(r => r.json());
 }
 
 
@@ -152,8 +189,8 @@ const authComponent = {
 };
 
 
-const editorComponent = {
-    template: '#postEditor',
+const newPostComponent = {
+    template: '#newPostEditor',
     props: ['micropuburl', 'token'],
     data() {
         return {
@@ -162,6 +199,7 @@ const editorComponent = {
             postTitle: "",
             postType: "entry",
             postURL: "",
+            showOverlay: false
         }
     },
     methods: {
@@ -173,15 +211,21 @@ const editorComponent = {
             }
         },
         submitPost() {
-            publishContent(this.micropuburl, this.token, {
+            this.showOverlay = true;
+            Vue.nextTick().then(() => publishContent(this.micropuburl, this.token, {
                 title: this.postTitle,
                 body: this.postBody,
                 type: this.postType,
                 image: this.postImage
-            }).then(postURL => {
+            })).then(postURL => {
                 this.clearFields();
                 this.postURL = postURL;
-            });
+            }).then(() => this.showOverlay = false).catch((err) => {
+                this.showOverlay = false;
+                return Vue.nextTick().then(() => {
+                    console.log(err);
+                });
+            })
         },
         clearFields(){
             this.postBody = "";
@@ -189,6 +233,48 @@ const editorComponent = {
             this.postURL = "";
             this.postImage = null;
             this.$refs.fileField.value = '';
+        }
+    }
+};
+
+const editPostComponent = {
+    template: '#editPostEditor',
+    props: ['micropuburl', 'token'],
+    data() {
+        return {
+            postEditUrl: "",
+            postBody: "",
+            postTitle: "",
+            postType: "entry",
+            showOverlay: false,
+            editing: false,
+            editSuccess: false
+        };
+    },
+    methods: {
+        sourcePost(){
+            this.showOverlay = true;
+            sourcePostProperties(this.micropuburl, this.token, this.postEditUrl).then(postAttrs => {
+                this.postBody = postAttrs.content;
+                this.postTitle = postAttrs.title
+            }).then(() => {
+                this.showOverlay = false;
+                this.editing = true;
+                this.editSuccess = false;
+            });
+        },
+        editPost(){
+            this.showOverlay = true;
+            updatePost(this.micropuburl, this.token, {
+                title: this.postTitle,
+                content: this.postBody,
+                url: this.postEditUrl
+            }).then(() => {
+                this.showOverlay = false;
+                this.editSuccess = true
+            }).catch(err => {
+                this.showOverlay = false;
+            })
         }
     }
 };
@@ -254,9 +340,17 @@ const mainApp = new Vue({
             this.currentScreen = 'authSection';
             this.reset()
         },
-        showEditor(auth){
+        newPostComposer(auth){
+            this.currentScreen = 'newPostSection';
+            this.setupMp(auth);
+        },
+        editPostComposer(auth){
+            this.currentScreen = 'editPostSection';
+            this.setupMp(auth);
+        },
+        setupMp(auth) {
+            if (!!this.token) return;
             this.token = auth.token;
-            this.currentScreen = 'editorSection';
             this.siteUrl = auth.siteUrl;
             discoverLink(auth.siteUrl, "micropub").then(mpUrl => {
                 this.micropuburl = mpUrl;
@@ -264,18 +358,24 @@ const mainApp = new Vue({
             }).then(config => {
                 this.mediaurl = config['media-endpoint'];
             }).then(() => this.$refs.media.discover());
-            CurrentBlog.set(auth.siteUrl);
         },
         negotiateCode(siteUrl, code) {
             discoverLink(siteUrl, "token_endpoint").then(
                 tokenEndpoint => obtainToken(code, tokenEndpoint)
             ).then(token => {
                 TokenManager.store(siteUrl, token);
-                this.showEditor({
+                this.newPostComposer({
                     siteUrl,
                     token
                 });
-            });
+            }).then(() => CurrentBlog.set(siteUrl));
+        },
+        switchScreen(){
+            if (this.currentScreen === 'newPostSection') {
+                this.currentScreen = 'editPostSection';
+            } else {
+                this.currentScreen = 'newPostSection';
+            }
         },
         signOut(){
             CurrentBlog.clear();
@@ -283,7 +383,8 @@ const mainApp = new Vue({
         }
     },
     components: {
-        'post-editor': editorComponent,
+        'new-post': newPostComponent,
+        'edit-post': editPostComponent,
         'auth-form': authComponent,
         'media-manager': mediaComponent
     }
@@ -298,7 +399,7 @@ function init(){
     } else {
         const siteUrl = CurrentBlog.get();
         if (!!siteUrl) {
-            TokenManager.get(siteUrl).then(token => mainApp.showEditor({
+            TokenManager.get(siteUrl).then(token => mainApp.newPostComposer({
                 siteUrl,
                 token
             }))

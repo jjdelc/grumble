@@ -109,6 +109,23 @@ $bar-height: 3rem;
   .postSection {
     flex: 0 0 auto;
   }
+  .post-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: rgba(255, 255, 255, 0.5);
+    display: flex;
+    vertical-align: center;
+    justify-content: center;
+    width: 100%;
+    height: 100vh;
+    font-size: 4rem;
+    z-index: 1000;
+    span {
+      display: flex;
+      align-items: center;
+    }
+  }
 }
 
 .mediaSection {
