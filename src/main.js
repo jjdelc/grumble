@@ -102,6 +102,30 @@ function publishContent(endpoint, token, content) {
     }).then(r => r.headers.get('Location'));
 }
 
+
+function getMediaList(mediaUrl, token) {
+    return fetch(mediaUrl, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        }
+    }).then(r => r.json())
+}
+
+
+function uploadMedia(mediaUrl, token, mediaFiles) {
+    const fd = new FormData();
+    mediaFiles.forEach(f => fd.append('file', f));
+    return fetch(mediaUrl, {
+        method: 'POST',
+        body: fd,
+        mode: 'cors',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        }
+    });
+}
+
+
 const authComponent = {
     template: '#authComponent',
     data() {
@@ -114,18 +138,14 @@ const authComponent = {
         authSite(evt){
             const siteUrl = this.siteUrl;
             return TokenManager.get(siteUrl).then(
-                token => {
-                    this.$emit('authobtained', {
-                        token,
-                        siteUrl: this.siteUrl
-                    });
-                }
+                token => this.$emit('authobtained', {
+                    token,
+                    siteUrl: this.siteUrl
+                })
             ).catch(() => {
                 discoverLink(siteUrl, "authorization_endpoint").then(
                     authEndpoint => this.authTarget = authEndpoint
-                ).then(
-                    () => evt.target.submit()
-                )
+                ).then(() => evt.target.submit());
             });
         }
     }
@@ -147,7 +167,7 @@ const editorComponent = {
     methods: {
         loadFile(files) {
             if (files.length > 0) {
-                this.postImage = files[0]
+                this.postImage = files[0];
             } else {
                 this.postImage = null;
             }
@@ -184,15 +204,8 @@ const mediaComponent = {
         }
     },
     methods: {
-        discover(mediaUrl, token){
-            const params = new URLSearchParams();
-            fetch(mediaUrl + '?' + params.toString(), {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                }
-            }).then(
-                r => r.json()
-            ).then(fileList => {
+        discover(){
+            getMediaList(this.mediaurl, this.token).then(fileList => {
                 this.fileList = fileList
             });
         },
@@ -200,18 +213,8 @@ const mediaComponent = {
             [...files].forEach(f => this.mediaFiles.push(f));
         },
         uploadFiles(){
-            const fd = new FormData();
-            this.mediaFiles.forEach(f => fd.append('file', f));
-            const token = this.token;
-            fetch(this.mediaurl, {
-                method: 'POST',
-                body: fd,
-                mode: 'cors',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                }
-            }).then(() => {
-                this.discover(this.mediaurl, this.token);
+            uploadMedia(this.mediaurl, this.token, this.mediaFiles).then(() => {
+                this.discover();
                 this.$refs.fileField.value = '';
             });
         }
@@ -260,8 +263,7 @@ const mainApp = new Vue({
                 return micropubConfig(mpUrl, auth.token);
             }).then(config => {
                 this.mediaurl = config['media-endpoint'];
-                this.$refs.media.discover(this.mediaurl, this.token);
-            });
+            }).then(() => this.$refs.media.discover());
             CurrentBlog.set(auth.siteUrl);
         },
         negotiateCode(siteUrl, code) {
@@ -275,7 +277,7 @@ const mainApp = new Vue({
                 });
             });
         },
-        goHome(){
+        signOut(){
             CurrentBlog.clear();
             this.requestAuth();
         }
@@ -288,16 +290,20 @@ const mainApp = new Vue({
 });
 
 
-const params = new URLSearchParams(location.search);
-const code = params.get('code');
-if (!!code) {
-    mainApp.negotiateCode(params.get('me'), code);
-} else {
-    const siteUrl = CurrentBlog.get();
-    if (!!siteUrl) {
-        TokenManager.get(siteUrl).then(token => mainApp.showEditor({
-            siteUrl: siteUrl,
-            token
-        }))
+function init(){
+    const params = new URLSearchParams(location.search);
+    const code = params.get('code');
+    if (!!code) {
+        mainApp.negotiateCode(params.get('me'), code);
+    } else {
+        const siteUrl = CurrentBlog.get();
+        if (!!siteUrl) {
+            TokenManager.get(siteUrl).then(token => mainApp.showEditor({
+                siteUrl,
+                token
+            }))
+        }
     }
 }
+
+init();
