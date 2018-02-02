@@ -18,7 +18,7 @@
 <div class="top-bar">
     <a ><i class="fa fa-bars"></i></a>
     <h1>{{siteUrl}}</h1>
-    <a @click="goHome"><i class="fa fa-sign-out-alt"></i></a>
+    <a @click="signOut"><i class="fa fa-sign-out-alt"></i></a>
 </div>
     <h1 class="post-type-title">New post</h1>
     <post-editor v-bind:token="token" v-bind:micropuburl="micropuburl"></post-editor>
@@ -94,7 +94,7 @@
                multiple name="file" accept="image/*"
                ref="fileField"
                required/>
-        <input type="submit">
+        <button type="submit"><i class="fa fa-upload"></i>&nbsp;</button>
     </form>
     <ol v-if="fileList.length > 0" class="media-list">
         <li v-for="fileUrl in fileList">
