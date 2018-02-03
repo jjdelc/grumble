@@ -70,8 +70,8 @@ const CurrentBlog = {
 function obtainToken(code, tokenEndpoint) {
     const data = new FormData();
     data.append('code', code);
-    data.append('client_id', "http://localhost:4321");
-    data.append('redirect_uri', "http://localhost:4321");
+    data.append('client_id', CLIENT_ID);
+    data.append('redirect_uri', REDIRECT_URI);
     data.append('grant_type',"authorization_code");
     const req = new Request(tokenEndpoint, {
         method: 'POST',
