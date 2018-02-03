@@ -169,6 +169,8 @@ const authComponent = {
         return {
             siteUrl: "",
             authTarget: "",
+            clientID: CLIENT_ID,
+            redirectURI: REDIRECT_URI
         }
     },
     methods: {

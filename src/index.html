@@ -52,8 +52,8 @@
                required placeholder="yourdomain.com" />
         </p>
         <p><button type="submit">Sign In</button></p>
-        <input type="hidden" name="client_id" value="http://localhost:4321" />
-        <input type="hidden" name="redirect_uri" value="http://localhost:4321" />
+        <input type="hidden" name="client_id" :value="clientID" />
+        <input type="hidden" name="redirect_uri" :value="redirectURI" />
         <input type="hidden" name="scope" value="create update"/>
         <input type="hidden" name="response_type" value="code"/>
     </form>
@@ -159,6 +159,7 @@
 </div>
 </script>
 
+<script src="client.js"></script>
 <script src="main.js"></script>
 </body>
 </html>
