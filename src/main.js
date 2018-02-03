@@ -185,7 +185,7 @@ const authComponent = {
                 discoverLink(siteUrl, "authorization_endpoint").then(
                     authEndpoint => this.authTarget = authEndpoint
                 ).then(() => evt.target.submit());
-            });
+            }).then(() => CurrentBlog.set(siteUrl));
         }
     }
 };
@@ -344,17 +344,17 @@ const mainApp = new Vue({
         },
         newPostComposer(auth){
             this.currentScreen = 'newPostSection';
-            this.setupMp(auth);
+            return this.setupMp(auth);
         },
         editPostComposer(auth){
             this.currentScreen = 'editPostSection';
-            this.setupMp(auth);
+            return this.setupMp(auth);
         },
         setupMp(auth) {
             if (!!this.token) return;
             this.token = auth.token;
             this.siteUrl = auth.siteUrl;
-            discoverLink(auth.siteUrl, "micropub").then(mpUrl => {
+            return discoverLink(auth.siteUrl, "micropub").then(mpUrl => {
                 this.micropuburl = mpUrl;
                 return micropubConfig(mpUrl, auth.token);
             }).then(config => {
@@ -362,7 +362,7 @@ const mainApp = new Vue({
             }).then(() => this.$refs.media.discover());
         },
         negotiateCode(siteUrl, code) {
-            discoverLink(siteUrl, "token_endpoint").then(
+            return discoverLink(siteUrl, "token_endpoint").then(
                 tokenEndpoint => obtainToken(code, tokenEndpoint)
             ).then(token => {
                 TokenManager.store(siteUrl, token);
@@ -370,7 +370,7 @@ const mainApp = new Vue({
                     siteUrl,
                     token
                 });
-            }).then(() => CurrentBlog.set(siteUrl));
+            });
         },
         switchScreen(){
             if (this.currentScreen === 'newPostSection') {
@@ -397,14 +397,16 @@ function init(){
     const params = new URLSearchParams(location.search);
     const code = params.get('code');
     if (!!code) {
-        mainApp.negotiateCode(params.get('me'), code);
+        mainApp.negotiateCode(params.get('me'), code).then(
+            () => CurrentBlog.set(params.get('me'))
+        );
     } else {
         const siteUrl = CurrentBlog.get();
         if (!!siteUrl) {
             TokenManager.get(siteUrl).then(token => mainApp.newPostComposer({
                 siteUrl,
                 token
-            }))
+            })).then(() => CurrentBlog.set(siteUrl));
         }
     }
 }
