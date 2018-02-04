@@ -89,6 +89,7 @@ function publishContent(endpoint, token, content) {
     data.append('name', content.title);
     data.append('content', content.body);
     data.append('h', content.type);
+    data.append('published', (new Date()).toISOString());
     if (!!content.image) {
         data.append('photo', content.image);
     }
@@ -255,6 +256,7 @@ const editPostComponent = {
     },
     methods: {
         sourcePost(){
+            if (this.postEditUrl === '') return;
             this.showOverlay = true;
             sourcePostProperties(this.micropuburl, this.token, this.postEditUrl).then(postAttrs => {
                 this.postBody = postAttrs.content;
