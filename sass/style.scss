@@ -90,6 +90,8 @@ $bar-height: 3rem;
     text-align: right;
     color: #AAAAAA;
     flex: 0 0 auto;
+    margin: 0;
+    line-height: 180%;
   }
   .post-title {
     display: block;
@@ -105,8 +107,13 @@ $bar-height: 3rem;
     width: 100%;
     min-height: 15vh;
     resize: vertical;
+    border-width: 1px 0 1px 0;
+    border-color: #DDDDDD;
+    border-style: solid;
   }
   .postSection {
+    width: 98%;
+    margin: 0 auto;
     flex: 0 0 auto;
   }
   .post-overlay {
