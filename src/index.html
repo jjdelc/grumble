@@ -76,7 +76,7 @@
         <div class="post-editor">
             <p><input
                     type="text" class="post-title" focus
-                    name="name" v-model="postTitle"
+                    name="name" v-model="postTitle" autocomplete="off"
                     placeholder="Optional title"/></p>
             <p><input type="file" name="photo"
                       @change="loadFile($event.target.files)"
