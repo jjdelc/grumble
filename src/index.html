@@ -27,7 +27,7 @@
 </div>
     <div v-if="currentScreen === 'newPostSection'">
     <h1 class="post-type-title">New post</h1>
-    <new-post v-bind:token="token" v-bind:micropuburl="micropuburl"></new-post>
+    <new-post v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></new-post>
     </div>
     <div v-if="currentScreen === 'editPostSection'">
     <h1 class="post-type-title">Edit post</h1>
@@ -87,6 +87,13 @@
                     placeholder="blog post here"
                     class="post-body"
                     v-model="postBody" name="content"></textarea></p>
+        <p v-show="syndication.hasSyndicationTargets">
+            <label v-for="target in syndication.syndicationTargets">
+                <input type="checkbox" name="syndicate-to" :value="target.uid" v-model="syndicateTo">
+                <img :src="target.service.photo">
+                {{target.service.name}}
+            </label>
+        </p>
         <input type="hidden" name="h" v-bind:value="postType"/>
         <p>
             <button type="submit">Post</button>

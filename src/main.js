@@ -93,6 +93,9 @@ function publishContent(endpoint, token, content) {
     if (!!content.image) {
         data.append('photo', content.image);
     }
+    content.syndicateTo.forEach(
+        targetUid => data.append('mp-syndicate-to', targetUid)
+    );
     return fetch(endpoint, {
         method: 'POST',
         body: data,
@@ -194,7 +197,7 @@ const authComponent = {
 
 const newPostComponent = {
     template: '#newPostEditor',
-    props: ['micropuburl', 'token'],
+    props: ['micropuburl', 'token', 'config'],
     data() {
         return {
             postImage: null,
@@ -202,7 +205,18 @@ const newPostComponent = {
             postTitle: "",
             postType: "entry",
             postURL: "",
-            showOverlay: false
+            showOverlay: false,
+            syndicateTo: []
+        }
+    },
+    computed: {
+        syndication() {
+            const config = this.config || {};
+            const syndicationTargets = config['syndicate-to'] || [];
+            return {
+                syndicationTargets: syndicationTargets,
+                hasSyndicationTargets: syndicationTargets.length > 0,
+            }
         }
     },
     methods: {
@@ -219,7 +233,8 @@ const newPostComponent = {
                 title: this.postTitle,
                 body: this.postBody,
                 type: this.postType,
-                image: this.postImage
+                image: this.postImage,
+                syndicateTo: this.syndicateTo
             })).then(postURL => {
                 this.clearFields();
                 this.postURL = postURL;
@@ -314,6 +329,7 @@ const mediaComponent = {
 const mainApp = new Vue({
     el: '#mainApp',
     data: {
+        config: null,
         currentScreen: 'authSection',
         token: null,
         mediaurl: null,
@@ -360,6 +376,7 @@ const mainApp = new Vue({
                 this.micropuburl = mpUrl;
                 return micropubConfig(mpUrl, auth.token);
             }).then(config => {
+                this.config = config;
                 this.mediaurl = config['media-endpoint'];
             }).then(() => this.$refs.media.discover());
         },
