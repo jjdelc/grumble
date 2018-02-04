@@ -2,7 +2,7 @@
   "name": "Grumble Micropub editor",
   "short_name": "Grumble",
   "start_url": "./?utm_source=web_app_manifest",
-  "display": "fullscreen",
+  "display": "standalone",
   "background_color": "#EEE",
   "theme_color": "#EEE",
   "description": "Micropub client",
