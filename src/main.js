@@ -322,6 +322,17 @@ const mediaComponent = {
                 this.discover();
                 this.$refs.fileField.value = '';
             });
+        },
+        copyContent(el) {
+            el.select();
+            document.execCommand('copy');
+        },
+        toggleItem(el) {
+            el = el.nodeName === 'IMG'?el.parentElement:el;
+            if (el.nodeName !== 'LI') return;
+            [...document.querySelectorAll('li.extended')].forEach(
+                _el => _el.classList.remove('extended'));
+            el.classList.toggle('extended');
         }
     }
 };

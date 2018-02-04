@@ -170,11 +170,17 @@
         <button type="submit"><i class="fa fa-upload"></i>&nbsp;</button>
     </form>
     <ol v-if="fileList.length > 0" class="media-list">
-        <li v-for="fileUrl in fileList">
+        <li v-for="fileUrl in fileList" @click="toggleItem($event.target)">
             <img v-bind:src="fileUrl">
-            <input type="text"
-                   class="file-url"
-                   readonly v-bind:value="'![](' + fileUrl + ')'" size="30">
+            <div class="pic-info">
+                <p><label>URL: <input type="text"
+                   class="file-url" @click.prevent="copyContent($event.target)"
+                   readonly v-bind:value="fileUrl" size="30"></label></p>
+                <p><label>MD: <input type="text"
+                   class="file-url" @click.prevent="copyContent($event.target)"
+                   readonly v-bind:value="'![](' + fileUrl + ')'" size="30"></label></p>
+
+            </div>
         </li>
     </ol>
 </div>

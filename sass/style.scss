@@ -169,30 +169,49 @@ $bar-height: 3rem;
     justify-content: center;
     li {
       flex: 0 0 auto;
+      flex-direction: row;
       width: 30%;
-      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
       background: #222222;
       margin: 1%;
       max-height: 100px;
+      border: 1px solid black;
+    }
+    .pic-info {
+      display: none;
+      font-size: 0.75rem;
+      color: #AAAAAA;
+      height: 100%;
+      p {
+        margin: 0 0.5rem;
+      }
+    }
+    .extended {
+      width: 95%;
+      img {
+        flex: 0 0 auto;
+        width: 30%;
+      }
+      .pic-info {
+        display: block;
+        flex: 1 0 auto;
+        width: 70%;
+        background: white;
+      }
     }
     img {
       display: block;
       max-width: 100%;
       height: auto;
       max-height: 100%;
+      margin: 0 auto;
     }
     .file-url {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(255, 255, 255, 0.5);
+      font-size: 1rem;
       display: block;
-      width: 100%;
-      border: 0;
+      width: 90%;
     }
   }
 }
