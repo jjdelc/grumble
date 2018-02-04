@@ -12,6 +12,9 @@
 <body>
 <div id="mainApp">
 
+<div v-if="currentScreen === ''" class="init-wait-screen">
+<p>Initializing...</p>
+</div>
 <div v-if="currentScreen === 'authSection'">
     <auth-form v-on:authobtained="newPostComposer"></auth-form>
     <!--<button @click="resetApp">Reset app</button>-->
@@ -88,19 +91,24 @@
                     class="post-body"
                     v-model="postBody" name="content"></textarea></p>
         <p v-show="syndication.hasSyndicationTargets">
-            <label v-for="target in syndication.syndicationTargets">
+
+        </p>
+        <input type="hidden" name="h" v-bind:value="postType"/>
+        <div class="form-footer">
+            <div class="form-syndication">
+                <label v-for="target in syndication.syndicationTargets">
                 <input type="checkbox" name="syndicate-to" :value="target.uid" v-model="syndicateTo">
                 <img :src="target.service.photo">
                 {{target.service.name}}
             </label>
-        </p>
-        <input type="hidden" name="h" v-bind:value="postType"/>
-        <p>
+            </div>
+            <div class="form-submit">
             <button type="submit">Post</button>
-            <span v-show="postURL !== ''">
+            </div>
+        </div>
+        <p v-show="postURL !== ''">
             <a :href="postURL" target="_blank">View post</a>
             <input :value="postURL" readonly>
-        </span>
         </p>
         </div>
     </form>
@@ -114,7 +122,7 @@
         <i class="fa fa-sync fa-spin"></i>
         </span>
     </div>
-    <form :action="micropuburl"
+    <form :action="micropuburl" autocomplete="off"
           @submit.prevent="editPost"
           method="POST" enctype="multipart/form-data">
         <div class="post-editor">
@@ -134,9 +142,12 @@
                     placeholder="blog post here"
                     class="post-body"
                     v-model="postBody" name="content"></textarea></p>
-            <p>
+            <div class="form-footer">
+                <div class="form-submit">
                 <button type="submit">Edit</button>
-                <span v-show="editSuccess">
+                </div>
+            </div>
+            <p v-show="editSuccess">
                 <a :href="postEditUrl" target="_blank">View post</a>
                 <input :value="postEditUrl" readonly>
             </p>

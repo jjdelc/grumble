@@ -330,7 +330,7 @@ const mainApp = new Vue({
     el: '#mainApp',
     data: {
         config: null,
-        currentScreen: 'authSection',
+        currentScreen: '',
         token: null,
         mediaurl: null,
         siteUrl: null,
@@ -398,6 +398,9 @@ const mainApp = new Vue({
                 this.currentScreen = 'newPostSection';
             }
         },
+        showAuth() {
+            this.currentScreen = 'authSection';
+        },
         signOut(){
             CurrentBlog.clear();
             this.requestAuth();
@@ -426,6 +429,8 @@ function init(){
                 siteUrl,
                 token
             })).then(() => CurrentBlog.set(siteUrl));
+        } else {
+            mainApp.showAuth();
         }
     }
 }

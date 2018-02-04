@@ -134,6 +134,19 @@ $bar-height: 3rem;
     }
   }
 }
+.post-editor {
+  .form-footer {
+    display: flex;
+    flex-direction: row;
+  }
+  .form-syndication {
+    flex: 1 0 auto;
+  }
+  .form-submit {
+    flex: 1 0 auto;
+    text-align: right;
+  }
+}
 
 .mediaSection {
   .media-list {
@@ -171,4 +184,13 @@ $bar-height: 3rem;
       border: 0;
     }
   }
+}
+
+
+.init-wait-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #CCC;
+  font-size: 2rem;
 }
