@@ -90,9 +90,7 @@ function publishContent(endpoint, token, content) {
     data.append('content', content.body);
     data.append('h', content.type);
     data.append('published', (new Date()).toISOString());
-    if (!!content.image) {
-        data.append('photo', content.image);
-    }
+    content.images.forEach(img => data.append('photo', img));
     content.syndicateTo.forEach(
         targetUid => data.append('mp-syndicate-to', targetUid)
     );
@@ -200,7 +198,7 @@ const newPostComponent = {
     props: ['micropuburl', 'token', 'config'],
     data() {
         return {
-            postImage: null,
+            postImages: [],
             postBody: "",
             postTitle: "",
             postType: "entry",
@@ -222,18 +220,20 @@ const newPostComponent = {
     methods: {
         loadFile(files) {
             if (files.length > 0) {
-                this.postImage = files[0];
+                this.postImages = [...files];
             } else {
-                this.postImage = null;
+                this.postImages = [];
             }
         },
         submitPost() {
+            if (!this.postTitle || !this.postBody || this.postImages.length == 0)
+                return;
             this.showOverlay = true;
             Vue.nextTick().then(() => publishContent(this.micropuburl, this.token, {
                 title: this.postTitle,
                 body: this.postBody,
                 type: this.postType,
-                image: this.postImage,
+                images: this.postImages,
                 syndicateTo: this.syndicateTo
             })).then(postURL => {
                 this.clearFields();

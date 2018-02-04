@@ -36,7 +36,7 @@
     <h1 class="post-type-title">Edit post</h1>
     <edit-post v-bind:token="token" v-bind:micropuburl="micropuburl"></edit-post>
     </div>
-    <h2 @click="mediaExpanded = !mediaExpanded">Media
+    <h2 class="media-toggler" @click="mediaExpanded = !mediaExpanded">Media
         <i :class="mediaChevron"></i>
     </h2>
     <media-manager
@@ -83,7 +83,7 @@
                     placeholder="Optional title"/></p>
             <p><input type="file" name="photo"
                       @change="loadFile($event.target.files)"
-                      ref="fileField"
+                      ref="fileField" multiple
                       tabindex="-1"
                       accept="image/*"></p>
             <p><textarea
