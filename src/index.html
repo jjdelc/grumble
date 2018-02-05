@@ -118,7 +118,7 @@
                 <label v-for="target in syndication.syndicationTargets">
                 <input type="checkbox" name="syndicate-to" :value="target.uid" v-model="syndicateTo">
                 <img :src="target.service.photo">
-                {{target.service.name}}
+                {{target.name}}
             </label>
             </div>
             <div class="form-submit">
@@ -232,7 +232,7 @@
                 <label v-for="target in syndication.syndicationTargets">
                 <input type="checkbox" name="syndicate-to" :value="target.uid" v-model="syndicateTo">
                 <img :src="target.service.photo">
-                {{target.service.name}}
+                {{target.name}}
             </label>
             </div>
             <div class="form-submit">
