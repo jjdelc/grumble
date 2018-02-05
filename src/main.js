@@ -54,6 +54,16 @@ const TokenManager = {
     }
 };
 
+const LastScreen = {
+    key: 'lastScreen',
+    set(screenName){
+        localStorage.setItem(LastScreen.key, screenName)
+    },
+    get(){
+        return localStorage.getItem(LastScreen.key) || 'newPostSection';
+    }
+}
+
 const CurrentBlog = {
     key: 'currentBlog',
     clear(){
@@ -380,14 +390,6 @@ const mainApp = new Vue({
             this.currentScreen = 'authSection';
             this.reset()
         },
-        newPostComposer(auth){
-            this.currentScreen = 'newPostSection';
-            return this.setupMp(auth);
-        },
-        editPostComposer(auth){
-            this.currentScreen = 'editPostSection';
-            return this.setupMp(auth);
-        },
         setupMp(auth) {
             if (!!this.token) return;
             this.token = auth.token;
@@ -405,18 +407,15 @@ const mainApp = new Vue({
                 tokenEndpoint => obtainToken(code, tokenEndpoint)
             ).then(token => {
                 TokenManager.store(siteUrl, token);
-                this.newPostComposer({
+                this.initEditor({
                     siteUrl,
                     token
                 });
             });
         },
-        switchScreen(){
-            if (this.currentScreen === 'newPostSection') {
-                this.currentScreen = 'editPostSection';
-            } else {
-                this.currentScreen = 'newPostSection';
-            }
+        initEditor(auth){
+            this.currentScreen = LastScreen.get();
+            return this.setupMp(auth)
         },
         showAuth() {
             this.currentScreen = 'authSection';
@@ -431,6 +430,10 @@ const mainApp = new Vue({
         triggerMenu(screen) {
             this.currentScreen = screen;
             this.showSidebar = false;
+            const savedScreens = ['newPostSection', 'quickNoteSection'];
+            if (savedScreens.includes(screen)) {
+                LastScreen.set(screen)
+            }
         }}
 
     ,
@@ -454,7 +457,7 @@ function init(){
     } else {
         const siteUrl = CurrentBlog.get();
         if (!!siteUrl) {
-            TokenManager.get(siteUrl).then(token => mainApp.newPostComposer({
+            TokenManager.get(siteUrl).then(token => mainApp.initEditor({
                 siteUrl,
                 token
             })).then(() => CurrentBlog.set(siteUrl));

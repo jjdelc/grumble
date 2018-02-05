@@ -16,7 +16,7 @@
 <p>Initializing...</p>
 </div>
 <div v-if="currentScreen === 'authSection'">
-    <auth-form v-on:authobtained="newPostComposer"></auth-form>
+    <auth-form v-on:authobtained="initEditor"></auth-form>
     <!--<button @click="resetApp">Reset app</button>-->
 </div>
 
@@ -217,7 +217,7 @@
           method="POST" enctype="multipart/form-data">
         <div class="post-editor">
             <p><textarea
-                    placeholder="blog post here"
+                    placeholder="Quick note"
                     class="post-body"
                     v-model="postBody" name="content"></textarea></p>
             <p><input type="file" name="photo"
