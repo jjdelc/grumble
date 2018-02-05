@@ -296,6 +296,8 @@ const editPostComponent = {
                 this.showOverlay = false;
                 this.editing = true;
                 this.editSuccess = false;
+            }).catch(() => {
+                this.showOverlay = false;
             });
         },
         editPost(){
