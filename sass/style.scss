@@ -262,3 +262,13 @@ $bar-height: 3rem;
   color: #CCC;
   font-size: 2rem;
 }
+
+.new-post-link {
+  background: #EEE;
+  border: 1px solid #DDDDDD;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  a {
+    color: $orange;
+  }
+}

@@ -125,7 +125,7 @@
             <button type="submit">Post</button>
             </div>
         </div>
-        <p v-show="postURL !== ''">
+        <p v-show="postURL !== ''" class="new-post-link">
             <a :href="postURL" target="_blank">View post</a>
             <input :value="postURL" readonly>
         </p>
@@ -239,7 +239,7 @@
             <button type="submit">Post</button>
             </div>
         </div>
-        <p v-show="postURL !== ''">
+        <p v-show="postURL !== ''" class="new-post-link">
             <a :href="postURL" target="_blank">View post</a>
             <input :value="postURL" readonly>
         </p>

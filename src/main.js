@@ -346,7 +346,9 @@ const mediaComponent = {
         toggleItem(el) {
             el = el.nodeName === 'IMG'?el.parentElement:el;
             if (el.nodeName !== 'LI') return;
-            [...document.querySelectorAll('li.extended')].forEach(
+            [...document.querySelectorAll('li.extended')].filter(
+                _el => !_el.isEqualNode(el)
+            ).forEach(
                 _el => _el.classList.remove('extended'));
             el.classList.toggle('extended');
         }
