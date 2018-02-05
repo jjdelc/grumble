@@ -380,6 +380,9 @@ const mainApp = new Vue({
                 console.log('localStorage cleared');
             }
         },
+        reload(){
+            window.location.reload();
+        },
         reset(){
             this.token = null;
             this.siteUrl = null;
