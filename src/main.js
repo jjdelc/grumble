@@ -193,8 +193,7 @@ const authComponent = {
 };
 
 
-const newPostComponent = {
-    template: '#newPostEditor',
+const baseEditor = {
     props: ['micropuburl', 'token', 'config'],
     data() {
         return {
@@ -226,7 +225,7 @@ const newPostComponent = {
             }
         },
         submitPost() {
-            if (!this.postTitle || !this.postBody || this.postImages.length == 0)
+            if (!this.postTitle && !this.postBody && this.postImages.length == 0)
                 return;
             this.showOverlay = true;
             Vue.nextTick().then(() => publishContent(this.micropuburl, this.token, {
@@ -249,11 +248,18 @@ const newPostComponent = {
             this.postBody = "";
             this.postTitle = "";
             this.postURL = "";
-            this.postImage = null;
+            this.postImages = [];
             this.$refs.fileField.value = '';
         }
     }
 };
+
+
+let newPostComponent = Object.create(baseEditor);
+newPostComponent.template = '#newPostEditor';
+let quickNoteComponent = Object.create(baseEditor);
+quickNoteComponent.template = '#quickNoteEditor';
+
 
 const editPostComponent = {
     template: '#editPostEditor',
@@ -347,6 +353,7 @@ const mainApp = new Vue({
         siteUrl: null,
         micropuburl: null,
         mediaExpanded: false,
+        showSidebar: false
     },
     computed: {
         mediaChevron(){
@@ -358,8 +365,10 @@ const mainApp = new Vue({
     },
     methods: {
         resetApp(){
-            localStorage.clear();
-            console.log('localStorage cleared');
+            if (confirm("Clear local storage?")) {
+                localStorage.clear();
+                console.log('localStorage cleared');
+            }
         },
         reset(){
             this.token = null;
@@ -415,13 +424,22 @@ const mainApp = new Vue({
         signOut(){
             CurrentBlog.clear();
             this.requestAuth();
-        }
-    },
+        },
+        toggleOptions(){
+            this.showSidebar = !this.showSidebar;
+        },
+        triggerMenu(screen) {
+            this.currentScreen = screen;
+            this.showSidebar = false;
+        }}
+
+    ,
     components: {
         'new-post': newPostComponent,
         'edit-post': editPostComponent,
         'auth-form': authComponent,
-        'media-manager': mediaComponent
+        'media-manager': mediaComponent,
+        'quick-note': quickNoteComponent
     }
 });
 
