@@ -166,7 +166,7 @@
                 <button type="submit">Edit</button>
                 </div>
             </div>
-            <p v-show="editSuccess">
+            <p v-show="editSuccess" class="new-post-link">
                 <a :href="postEditUrl" target="_blank">View post</a>
                 <input :value="postEditUrl" readonly>
             </p>
