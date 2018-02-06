@@ -102,6 +102,9 @@ function publishContent(endpoint, token, content) {
     if (!!content.title) {
         data.append('name', content.title);
     }
+    if (!!content.bookmark) {
+        data.append('bookmark-of', content.bookmark);
+    }
     data.append('content', content.body);
     data.append('h', content.type);
     data.append('published', (new Date()).toISOString());
@@ -292,7 +295,17 @@ replyToComponent.methods.buildData = function() {
         replyTo: this.postTitle,
         body: this.postBody,
         type: this.postType,
-        images: this.postImages,
+        syndicateTo: this.syndicateTo
+    };
+};
+let shareLinkComponent = Object.create(baseEditor);
+shareLinkComponent.template = '#shareLinkEditor';
+shareLinkComponent.methods = Object.assign({}, baseEditor.methods);
+shareLinkComponent.methods.buildData = function() {
+    return {
+        bookmark: this.postTitle,
+        body: this.postBody,
+        type: this.postType,
         syndicateTo: this.syndicateTo
     };
 };
@@ -477,7 +490,8 @@ const mainApp = new Vue({
         'auth-form': authComponent,
         'media-manager': mediaComponent,
         'quick-note': quickNoteComponent,
-        'reply-to': replyToComponent
+        'reply-to': replyToComponent,
+        'share-link': shareLinkComponent
     }
 });
 

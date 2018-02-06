@@ -21,7 +21,7 @@
 </div>
 
 <div class="post-editor-screen"
-     v-if="['newPostSection', 'editPostSection', 'quickNoteSection', 'replySection'].includes(currentScreen)"
+     v-if="['newPostSection', 'editPostSection', 'quickNoteSection', 'replySection', 'shareLinkSection'].includes(currentScreen)"
 >
 <div class="options-sidebar" v-show="showSidebar">
     <div class="top-bar">
@@ -33,7 +33,7 @@
         <li><a @click.prevent="triggerMenu('editPostSection')">Edit Post</a></li>
         <li><a @click.prevent="triggerMenu('quickNoteSection')">Quick note</a></li>
         <li><a @click.prevent="triggerMenu('replySection')">Reply</a></li>
-        <li><a href="#">Share link</a></li>
+        <li><a @click.prevent="triggerMenu('shareLinkSection')">Share link</a></li>
         <li><a href="#">Like page</a></li>
         <li><a href="#">RSVP</a></li>
         <li class="separator"></li>
@@ -61,6 +61,10 @@
     <div v-if="currentScreen === 'replySection'">
         <h1 class="post-type-title">Reply</h1>
         <reply-to v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></reply-to>
+    </div>
+    <div v-if="currentScreen === 'shareLinkSection'">
+        <h1 class="post-type-title">Share</h1>
+        <share-link v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></share-link>
     </div>
     <h2 class="media-toggler" @click="mediaExpanded = !mediaExpanded">Media
         <i :class="mediaChevron"></i>
@@ -281,7 +285,48 @@
             </label>
             </div>
             <div class="form-submit">
-            <button type="submit">Post</button>
+            <button type="submit">Reply</button>
+            </div>
+        </div>
+        <p v-show="postURL !== ''" class="new-post-link">
+            <a :href="postURL" target="_blank">View post</a>
+            <input :value="postURL" readonly>
+        </p>
+        </div>
+    </form>
+</div>
+</script>
+
+<script type="text/x-template" id="shareLinkEditor">
+<div class="postSection">
+    <div class="post-overlay" v-show="showOverlay">
+        <span>
+        <i class="fa fa-sync fa-spin"></i>
+        </span>
+    </div>
+    <form :action="micropuburl"
+          @submit.prevent="submitPost"
+          method="POST" enctype="multipart/form-data">
+        <div class="post-editor">
+            <p><input
+                    type="url" class="post-title" focus
+                    name="name" v-model="postTitle" autocomplete="off"
+                    placeholder="Link to share"/></p>
+            <p><textarea
+                    placeholder="Note..."
+                    class="post-body"
+                    v-model="postBody" name="content"></textarea></p>
+        <input type="hidden" name="h" v-bind:value="postType"/>
+        <div class="form-footer">
+            <div class="form-syndication">
+                <label v-for="target in syndication.syndicationTargets">
+                <input type="checkbox" name="syndicate-to" :value="target.uid" v-model="syndicateTo">
+                <img :src="target.service.photo">
+                {{target.name}}
+            </label>
+            </div>
+            <div class="form-submit">
+            <button type="submit">Save bookmark</button>
             </div>
         </div>
         <p v-show="postURL !== ''" class="new-post-link">
