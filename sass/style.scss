@@ -152,6 +152,20 @@ $bar-height: 3rem;
     flex: 1 0 auto;
     text-align: right;
   }
+  .post-edit-url {
+    display: flex;
+    input {
+      display: block;
+      flex: 1 0 auto;
+      font-size: 1rem;
+      width: auto;
+    }
+    button {
+      flex: 0 0 auto;
+      min-width: 0;
+      width: 4rem;
+    }
+  }
 }
 .options-sidebar {
   position: absolute;
