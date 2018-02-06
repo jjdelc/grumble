@@ -96,11 +96,16 @@ function obtainToken(code, tokenEndpoint) {
 
 function publishContent(endpoint, token, content) {
     const data = new FormData();
-    data.append('name', content.title);
+    if (!!content.replyTo) {
+        data.append('in-reply-to', content.replyTo);
+    }
+    if (!!content.title) {
+        data.append('name', content.title);
+    }
     data.append('content', content.body);
     data.append('h', content.type);
     data.append('published', (new Date()).toISOString());
-    content.images.forEach(img => data.append('photo', img));
+    (content.images || []).forEach(img => data.append('photo', img));
     content.syndicateTo.forEach(
         targetUid => data.append('mp-syndicate-to', targetUid)
     );
@@ -234,17 +239,25 @@ const baseEditor = {
                 this.postImages = [];
             }
         },
-        submitPost() {
-            if (!this.postTitle && !this.postBody && this.postImages.length == 0)
-                return;
-            this.showOverlay = true;
-            Vue.nextTick().then(() => publishContent(this.micropuburl, this.token, {
+        buildData(){
+            return {
                 title: this.postTitle,
                 body: this.postBody,
                 type: this.postType,
                 images: this.postImages,
                 syndicateTo: this.syndicateTo
-            })).then(postURL => {
+            };
+        },
+        isEmpty(){
+            return (!this.postTitle && !this.postBody && this.postImages.length === 0)
+        },
+        submitPost() {
+            if (this.isEmpty()) return;
+            this.showOverlay = true;
+            const data = this.buildData();
+            Vue.nextTick().then(
+                () => publishContent(this.micropuburl, this.token, data)
+            ).then(postURL => {
                 this.clearFields();
                 this.postURL = postURL;
             }).then(() => this.showOverlay = false).catch((err) => {
@@ -259,7 +272,8 @@ const baseEditor = {
             this.postTitle = "";
             this.postURL = "";
             this.postImages = [];
-            this.$refs.fileField.value = '';
+            if (!!this.$refs.fileField)
+                this.$refs.fileField.value = '';
         }
     }
 };
@@ -269,6 +283,19 @@ let newPostComponent = Object.create(baseEditor);
 newPostComponent.template = '#newPostEditor';
 let quickNoteComponent = Object.create(baseEditor);
 quickNoteComponent.template = '#quickNoteEditor';
+
+let replyToComponent = Object.create(baseEditor);
+replyToComponent.template = '#replyEditor';
+replyToComponent.methods = Object.assign({}, baseEditor.methods);
+replyToComponent.methods.buildData = function() {
+    return {
+        replyTo: this.postTitle,
+        body: this.postBody,
+        type: this.postType,
+        images: this.postImages,
+        syndicateTo: this.syndicateTo
+    };
+};
 
 
 const editPostComponent = {
@@ -449,7 +476,8 @@ const mainApp = new Vue({
         'edit-post': editPostComponent,
         'auth-form': authComponent,
         'media-manager': mediaComponent,
-        'quick-note': quickNoteComponent
+        'quick-note': quickNoteComponent,
+        'reply-to': replyToComponent
     }
 });
 
