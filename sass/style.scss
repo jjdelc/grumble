@@ -9,6 +9,7 @@ $yellow: #FFBA00;
 $orange: #FF7600;
 $dark-blue: #04346C;
 $max-screen-size: 40rem;
+$gray: #AAAAAA;
 
 #mainApp {
 }
@@ -33,7 +34,7 @@ $bar-height: 3rem;
   display: flex;
   flex-direction: row;
   height: $bar-height;
-  border-bottom: 1px solid #AAAAAA;
+  border-bottom: 1px solid $gray;
   box-shadow: 0 0px 3px #CCC;
   a {
     flex: 0 0 auto;
@@ -53,6 +54,9 @@ $bar-height: 3rem;
     flex: 1 0 auto;
     font-size: 0.8rem;
   }
+  .fa-sign-out-alt {
+    color: $gray;
+  }
 }
 
 .authSection {
@@ -70,7 +74,7 @@ $bar-height: 3rem;
     width: 100%;
     font-size: 1.5rem;
     border-width: 0 0 1px 0;
-    border-color: #AAAAAA;
+    border-color: $gray;
     padding: 0.25rem 0;
     line-height: 180%;
     text-align: center;
@@ -98,7 +102,7 @@ $bar-height: 3rem;
     width: 100%;
     font-size: 1.5rem;
     border-width: 0 0 1px 0;
-    border-color: #AAAAAA;
+    border-color: $gray;
   }
   .post-body {
     font-size: 1.5rem;
@@ -141,6 +145,8 @@ $bar-height: 3rem;
   }
   .form-syndication {
     flex: 1 0 auto;
+    display: flex;
+    align-items: center;
   }
   .form-submit {
     flex: 1 0 auto;
@@ -179,8 +185,8 @@ $bar-height: 3rem;
       padding: 0 0.5rem;
 
       &:hover {
-        font-weight: bold;
-        background: darkgray;
+        color: white;
+        background: $blue;
       }
     }
   }
