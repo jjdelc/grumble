@@ -66,6 +66,7 @@
         <h1 class="post-type-title">Share</h1>
         <share-link v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></share-link>
     </div>
+    <div class="media-section">
     <h2 class="media-toggler" @click="mediaExpanded = !mediaExpanded">Media
         <i :class="mediaChevron"></i>
     </h2>
@@ -73,6 +74,7 @@
             v-show="mediaExpanded"
             v-bind:token="token"
             v-bind:mediaurl="mediaurl" ref="media"></media-manager>
+    </div>
 </div>
 
 </div>
@@ -185,7 +187,7 @@
 </script>
 
 <script type="text/x-template" id="mediaManager">
-<div class="mediaSection">
+<div class="mediaManager">
     <form :action="mediaurl"
           @submit.prevent="uploadFiles"
           method="POST" enctype="multipart/form-data">
