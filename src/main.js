@@ -62,7 +62,7 @@ const LastScreen = {
     get(){
         return localStorage.getItem(LastScreen.key) || 'newPostSection';
     }
-}
+};
 
 const CurrentBlog = {
     key: 'currentBlog',
@@ -225,7 +225,6 @@ const baseEditor = {
         }
     },
     mounted() {
-        console.log('Im ready')
         autosize(this.$refs.postBody);
     },
     computed: {
