@@ -118,7 +118,7 @@
                       ref="fileField" multiple
                       tabindex="-1"
                       accept="image/*"></p>
-            <p><textarea
+            <p><textarea ref="postBody"
                     placeholder="blog post here"
                     class="post-body"
                     v-model="postBody" name="content"></textarea></p>
@@ -167,7 +167,7 @@
                     type="text" class="post-title" focus
                     name="name" v-model="postTitle"
                     placeholder="Optional title"/></p>
-            <p><textarea
+            <p><textarea ref="postBody"
                     placeholder="blog post here"
                     class="post-body"
                     v-model="postBody" name="content"></textarea></p>
@@ -227,7 +227,7 @@
           @submit.prevent="submitPost"
           method="POST" enctype="multipart/form-data">
         <div class="post-editor">
-            <p><textarea
+            <p><textarea ref="postBody"
                     placeholder="Quick note"
                     class="post-body"
                     v-model="postBody" name="content"></textarea></p>
@@ -273,7 +273,7 @@
                     type="url" class="post-title" focus
                     name="name" v-model="postTitle" autocomplete="off"
                     placeholder="Reply to URL"/></p>
-            <p><textarea
+            <p><textarea ref="postBody"
                     placeholder="Reply body"
                     class="post-body"
                     v-model="postBody" name="content"></textarea></p>
@@ -314,7 +314,7 @@
                     type="url" class="post-title" focus
                     name="name" v-model="postTitle" autocomplete="off"
                     placeholder="Link to share"/></p>
-            <p><textarea
+            <p><textarea ref="postBody"
                     placeholder="Note..."
                     class="post-body"
                     v-model="postBody" name="content"></textarea></p>
@@ -340,6 +340,7 @@
 </div>
 </script>
 
+<script src="autosize.min.js"></script>
 <script src="client.js"></script>
 <script src="main.js"></script>
 </body>

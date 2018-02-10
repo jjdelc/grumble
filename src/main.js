@@ -224,6 +224,10 @@ const baseEditor = {
             syndicateTo: []
         }
     },
+    mounted() {
+        console.log('Im ready')
+        autosize(this.$refs.postBody);
+    },
     computed: {
         syndication() {
             const config = this.config || {};

@@ -208,10 +208,10 @@ $bar-height: 3rem;
 }
 
 .media-section {
-  background: #FAFAFA;
   margin-top: 0.5rem;
   h2 {
     padding: 0 0.5rem;
+    font-size: 1rem;
   }
   .media-toggler {
     cursor: pointer;
@@ -224,7 +224,7 @@ $bar-height: 3rem;
 }
 .mediaManager {
   form {
-    background: #F0F0F0;
+    background: #FAFAFA;
   }
   .media-list {
     list-style: none;
