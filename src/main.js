@@ -94,32 +94,46 @@ function obtainToken(code, tokenEndpoint) {
 }
 
 
-function publishContent(endpoint, token, content) {
-    const data = new FormData();
-    if (!!content.replyTo) {
-        data.append('in-reply-to', content.replyTo);
-    }
-    if (!!content.title) {
-        data.append('name', content.title);
-    }
-    if (!!content.bookmark) {
-        data.append('bookmark-of', content.bookmark);
-    }
-    data.append('content', content.body);
-    data.append('h', content.type);
-    data.append('published', (new Date()).toISOString());
-    (content.images || []).forEach(img => data.append('photo', img));
-    content.syndicateTo.forEach(
-        targetUid => data.append('mp-syndicate-to', targetUid)
+function addToQueue(message) {
+    return navigator.serviceWorker.ready.then(
+        reg => store.outbox('readwrite').then(
+            outbox => outbox.put(message)
+        ).then(
+            () => {
+                reg.sync.register('outbox');
+                return "Async post"
+            }
+        )
+    ).catch(
+        // No SyncManager support :( :( :(
+        () => {
+            let req = message.request;
+            if (message.formData) {
+                req.body = publishData(message.body)
+            }
+            return fetch(message.endpoint, req).then(
+                r => r.headers.get('Location'))
+            }
     );
-    return fetch(endpoint, {
-        method: 'POST',
-        body: data,
-        mode: 'cors',
-        headers: {
-            'Authorization': `Bearer ${token}`,
+}
+
+
+
+
+function publishContent(endpoint, token, content) {
+    const msg = {
+        endpoint,
+        formData: true,
+        body: content,
+        request: {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            }
         }
-    }).then(r => r.headers.get('Location'));
+    };
+    return addToQueue(msg);
 }
 
 function sourcePostProperties(endpoint, token, postUrl) {

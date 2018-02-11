@@ -343,6 +343,28 @@
 
 <script src="autosize.min.js"></script>
 <script src="client.js"></script>
+<script src="idb.js"></script>
+<script src="store.js"></script>
 <script src="main.js"></script>
+<script src="upup.min.js"></script>
+<script>
+    if ('serviceWorker' in navigator) {
+        store.init();
+        navigator.serviceWorker.register('/sw.js').catch(err => console.log("WAT:", err));
+    }
+
+    UpUp.start({
+    'content-url': 'index.html',
+    'assets': [
+        '/favicon.png?v=0',
+        '/manifest.json?v=2',
+        '/style.css',
+        '/autosize.min.js',
+        '/client.js',
+        '/main.js',
+        '/idb.js'
+    ]
+   });
+</script>
 </body>
 </html>
