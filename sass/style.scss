@@ -34,7 +34,7 @@ $bar-height: 3rem;
   display: flex;
   flex-direction: row;
   height: $bar-height;
-  border-top: 5px solid $blue;
+  //border-top: 5px solid $blue;
   border-bottom: 1px solid $gray;
   box-shadow: 0 0px 3px #CCC;
   a {
@@ -243,7 +243,7 @@ $bar-height: 3rem;
       justify-content: center;
       background: #222222;
       margin: 1%;
-      max-height: 100px;
+      height: 150px;
       border: 1px solid black;
     }
     .pic-info {

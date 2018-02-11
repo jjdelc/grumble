@@ -73,6 +73,7 @@
     <media-manager
             v-show="mediaExpanded"
             v-bind:token="token"
+            v-bind:expanded="mediaExpanded"
             v-bind:mediaurl="mediaurl" ref="media"></media-manager>
     </div>
 </div>
@@ -200,7 +201,7 @@
     </form>
     <ol v-if="fileList.length > 0" class="media-list">
         <li v-for="fileUrl in fileList" @click="toggleItem($event.target)">
-            <img v-bind:src="fileUrl">
+            <img v-bind:src="expanded?fileUrl:'/favicon.png'">
             <div class="pic-info">
                 <p><label>URL: <input type="text"
                    class="file-url" @click.prevent="copyContent($event.target)"

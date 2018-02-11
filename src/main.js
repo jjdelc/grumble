@@ -362,7 +362,7 @@ const editPostComponent = {
 
 const mediaComponent = {
     template: '#mediaManager',
-    props: ['token', 'mediaurl'],
+    props: ['token', 'mediaurl', 'expanded'],
     data() {
         return {
             fileList: [],
