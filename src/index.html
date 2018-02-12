@@ -20,6 +20,11 @@
     <!--<button @click="resetApp">Reset app</button>-->
 </div>
 
+<div v-if="currentScreen === 'msgQueueSection'">
+    <h2>Pending messages</h2>
+    <msg-queue></msg-queue>
+</div>
+
 <div class="post-editor-screen"
      v-if="['newPostSection', 'editPostSection', 'quickNoteSection', 'replySection', 'shareLinkSection', 'likeSection'].includes(currentScreen)"
 >
@@ -36,6 +41,8 @@
         <li><a @click.prevent="triggerMenu('shareLinkSection')">Share link</a></li>
         <li><a @click.prevent="triggerMenu('likeSection')">Like page</a></li>
         <li><a href="#">RSVP</a></li>
+        <li class="separator"></li>
+        <li><a @click.prevent="triggerMenu('msgQueueSection')">Queue</a></li>
         <li class="separator"></li>
         <li><a @click="reload">Reload app</a></li>
         <li><a @click="resetApp">Reset app</a></li>
@@ -386,6 +393,14 @@
 </div>
 </script>
 
+<script type="text/x-template" id="postsQueue">
+<div class="post-queue">
+    <ol>
+        <li v-for="msg in msgQueue">x</li>
+    </ol>
+</div>
+</script>
+
 <script src="autosize.min.js"></script>
 <script src="client.js"></script>
 <script src="idb.js"></script>
@@ -395,7 +410,11 @@
 <script>
     if ('serviceWorker' in navigator) {
         store.init();
-        navigator.serviceWorker.register('/sw.js').catch(err => console.log("WAT:", err));
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+            if (!reg.sync) {
+                console.log("No background sync support :(");
+            }
+        });
     }
 
     UpUp.start({

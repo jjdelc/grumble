@@ -22,7 +22,7 @@ const store = {
 };
 
 
-function publishData(content) {
+function prepareFormData(content) {
     const data = new FormData();
     if (!!content.replyTo) {
         data.append('in-reply-to', content.replyTo);

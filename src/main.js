@@ -109,7 +109,7 @@ function addToQueue(message) {
         () => {
             let req = message.request;
             if (message.formData) {
-                req.body = publishData(message.body)
+                req.body = prepareFormData(message.body)
             }
             return fetch(message.endpoint, req).then(
                 r => r.headers.get('Location'))
@@ -426,6 +426,30 @@ const mediaComponent = {
     }
 };
 
+const pendingQueueComponent = {
+    el: '#postsQueue',
+    data() {
+        return {
+            msgQueue: []
+        }
+    },
+    methods: {
+
+    },
+    mounted(){
+        store.outbox('readonly').then(outbox => {
+            outbox.getAll().then(messages => messages.map(msg => {
+                return {
+                    title: msg.body.title,
+                    preview: msg.body.body.substring(0, 20)
+                }
+            })).then(msgs => {
+                this.msgQueue = msgs
+            });
+        });
+    }
+}
+
 const mainApp = new Vue({
     el: '#mainApp',
     data: {
@@ -521,7 +545,8 @@ const mainApp = new Vue({
         'quick-note': quickNoteComponent,
         'reply-to': replyToComponent,
         'share-link': shareLinkComponent,
-        'like-page': likeComponent
+        'like-page': likeComponent,
+        'msg-queue': pendingQueueComponent
     }
 });
 
