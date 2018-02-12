@@ -327,6 +327,18 @@ shareLinkComponent.methods.buildData = function() {
     };
 };
 
+let likeComponent = Object.create(baseEditor);
+likeComponent.template = '#likeEditor';
+likeComponent.methods = Object.assign({}, baseEditor.methods);
+likeComponent.methods.buildData = function() {
+    return {
+        like: this.postTitle,
+        body: this.postBody,
+        type: this.postType,
+        syndicateTo: this.syndicateTo
+    };
+};
+
 
 const editPostComponent = {
     template: '#editPostEditor',
@@ -508,7 +520,8 @@ const mainApp = new Vue({
         'media-manager': mediaComponent,
         'quick-note': quickNoteComponent,
         'reply-to': replyToComponent,
-        'share-link': shareLinkComponent
+        'share-link': shareLinkComponent,
+        'like-page': likeComponent
     }
 });
 

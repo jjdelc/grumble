@@ -21,7 +21,7 @@
 </div>
 
 <div class="post-editor-screen"
-     v-if="['newPostSection', 'editPostSection', 'quickNoteSection', 'replySection', 'shareLinkSection'].includes(currentScreen)"
+     v-if="['newPostSection', 'editPostSection', 'quickNoteSection', 'replySection', 'shareLinkSection', 'likeSection'].includes(currentScreen)"
 >
 <div class="options-sidebar" v-show="showSidebar">
     <div class="top-bar">
@@ -30,11 +30,11 @@
     </div>
     <ul class="opts-menu">
         <li><a @click.prevent="triggerMenu('newPostSection')">New Post</a></li>
-        <li><a @click.prevent="triggerMenu('editPostSection')">Edit Post</a></li>
         <li><a @click.prevent="triggerMenu('quickNoteSection')">Quick note</a></li>
+        <li><a @click.prevent="triggerMenu('editPostSection')">Edit Post</a></li>
         <li><a @click.prevent="triggerMenu('replySection')">Reply</a></li>
         <li><a @click.prevent="triggerMenu('shareLinkSection')">Share link</a></li>
-        <li><a href="#">Like page</a></li>
+        <li><a @click.prevent="triggerMenu('likeSection')">Like page</a></li>
         <li><a href="#">RSVP</a></li>
         <li class="separator"></li>
         <li><a @click="reload">Reload app</a></li>
@@ -65,6 +65,10 @@
     <div v-if="currentScreen === 'shareLinkSection'">
         <h1 class="post-type-title">Share</h1>
         <share-link v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></share-link>
+    </div>
+    <div v-if="currentScreen === 'likeSection'">
+        <h1 class="post-type-title">Like &#9829;</h1>
+        <like-page v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></like-page>
     </div>
     <div class="media-section">
     <h2 class="media-toggler" @click="mediaExpanded = !mediaExpanded">Media
@@ -330,6 +334,47 @@
             </div>
             <div class="form-submit">
             <button type="submit">Save bookmark</button>
+            </div>
+        </div>
+        <p v-show="postURL !== ''" class="new-post-link">
+            <a :href="postURL" target="_blank">View post</a>
+            <input :value="postURL" readonly>
+        </p>
+        </div>
+    </form>
+</div>
+</script>
+
+<script type="text/x-template" id="likeEditor">
+<div class="postSection">
+    <div class="post-overlay" v-show="showOverlay">
+        <span>
+        <i class="fa fa-sync fa-spin"></i>
+        </span>
+    </div>
+    <form :action="micropuburl"
+          @submit.prevent="submitPost"
+          method="POST" enctype="multipart/form-data">
+        <div class="post-editor">
+            <p><input
+                    type="url" class="post-title" focus
+                    name="name" v-model="postTitle" autocomplete="off"
+                    placeholder="Page to like"/></p>
+            <p><textarea ref="postBody"
+                    placeholder="Note..."
+                    class="post-body"
+                    v-model="postBody" name="content"></textarea></p>
+        <input type="hidden" name="h" v-bind:value="postType"/>
+        <div class="form-footer">
+            <div class="form-syndication">
+                <label v-for="target in syndication.syndicationTargets">
+                <input type="checkbox" name="syndicate-to" :value="target.uid" v-model="syndicateTo">
+                <img :src="target.service.photo">
+                {{target.name}}
+            </label>
+            </div>
+            <div class="form-submit">
+            <button type="submit">Like page &#9829;</button>
             </div>
         </div>
         <p v-show="postURL !== ''" class="new-post-link">

@@ -33,6 +33,9 @@ function publishData(content) {
     if (!!content.bookmark) {
         data.append('bookmark-of', content.bookmark);
     }
+    if (!!content.like) {
+        data.append('like-of', content.like);
+    }
     data.append('content', content.body);
     data.append('h', content.type);
     data.append('published', (new Date()).toISOString());
