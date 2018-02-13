@@ -265,7 +265,8 @@ const baseEditor = {
                 body: this.postBody,
                 type: this.postType,
                 images: this.postImages,
-                syndicateTo: this.syndicateTo
+                syndicateTo: this.syndicateTo,
+                published: new Date().toISOString()
             };
         },
         isEmpty(){
@@ -312,7 +313,8 @@ replyToComponent.methods.buildData = function() {
         replyTo: this.postTitle,
         body: this.postBody,
         type: this.postType,
-        syndicateTo: this.syndicateTo
+        syndicateTo: this.syndicateTo,
+        published: new Date().toISOString()
     };
 };
 let shareLinkComponent = Object.create(baseEditor);
@@ -323,7 +325,8 @@ shareLinkComponent.methods.buildData = function() {
         bookmark: this.postTitle,
         body: this.postBody,
         type: this.postType,
-        syndicateTo: this.syndicateTo
+        syndicateTo: this.syndicateTo,
+        published: new Date().toISOString()
     };
 };
 
@@ -335,7 +338,8 @@ likeComponent.methods.buildData = function() {
         like: this.postTitle,
         body: this.postBody,
         type: this.postType,
-        syndicateTo: this.syndicateTo
+        syndicateTo: this.syndicateTo,
+        published: new Date().toISOString()
     };
 };
 
@@ -427,28 +431,31 @@ const mediaComponent = {
 };
 
 const pendingQueueComponent = {
-    el: '#postsQueue',
+    template: '#postsQueue',
     data() {
         return {
             msgQueue: []
         }
     },
     methods: {
-
+        refresh() {
+            store.outbox('readonly').then(outbox => {
+                outbox.getAll().then(messages => messages.map(msg => {
+                    return {
+                        title: msg.body.title,
+                        preview: msg.body.body.substring(0, 50),
+                        time: msg.body.published
+                    }
+                })).then(msgs => {
+                    this.msgQueue = msgs
+                });
+            });
+        }
     },
     mounted(){
-        store.outbox('readonly').then(outbox => {
-            outbox.getAll().then(messages => messages.map(msg => {
-                return {
-                    title: msg.body.title,
-                    preview: msg.body.body.substring(0, 20)
-                }
-            })).then(msgs => {
-                this.msgQueue = msgs
-            });
-        });
+        this.refresh();
     }
-}
+};
 
 const mainApp = new Vue({
     el: '#mainApp',
@@ -468,6 +475,16 @@ const mainApp = new Vue({
                 'fa fa-chevron-right': !this.mediaExpanded,
                 'fa fa-chevron-down': this.mediaExpanded
             }
+        },
+        isEditorScreen() {
+            const editorScreens = [
+                'newPostSection', 'editPostSection', 'quickNoteSection',
+                'replySection', 'shareLinkSection', 'likeSection'
+            ];
+            return editorScreens.includes(this.currentScreen);
+        },
+        displayChrome(){
+            return this.currentScreen !== 'authSection'
         }
     },
     methods: {
@@ -475,12 +492,13 @@ const mainApp = new Vue({
             if (confirm("Clear local storage?")) {
                 localStorage.clear();
                 console.log('localStorage cleared');
+                this.requestAuth();
             }
         },
         reload(){
             window.location.reload();
         },
-        reset(){
+        resetFields(){
             this.token = null;
             this.siteUrl = null;
             this.mediaurl = null;
@@ -488,7 +506,7 @@ const mainApp = new Vue({
         },
         requestAuth(){
             this.currentScreen = 'authSection';
-            this.reset()
+            this.resetFields()
         },
         setupMp(auth) {
             if (!!this.token) return;

@@ -301,3 +301,26 @@ $bar-height: 3rem;
     color: $orange;
   }
 }
+
+.post-queue {
+  ol {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+  }
+  li {
+    border-bottom: 1px solid $gray;
+  }
+  h3 {
+    font-size: 1rem;
+  }
+  .pending-body {
+    font-style: italic;
+  }
+  time {
+    font-size: 0.8rem;
+    display: block;
+    color: $gray;
+    text-align: right;
+  }
+}

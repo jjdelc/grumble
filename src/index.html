@@ -20,14 +20,7 @@
     <!--<button @click="resetApp">Reset app</button>-->
 </div>
 
-<div v-if="currentScreen === 'msgQueueSection'">
-    <h2>Pending messages</h2>
-    <msg-queue></msg-queue>
-</div>
-
-<div class="post-editor-screen"
-     v-if="['newPostSection', 'editPostSection', 'quickNoteSection', 'replySection', 'shareLinkSection', 'likeSection'].includes(currentScreen)"
->
+<div class="post-editor-screen" v-show="displayChrome">
 <div class="options-sidebar" v-show="showSidebar">
     <div class="top-bar">
         <a @click.prevent="toggleOptions"><i class="fa fa-bars"></i></a>
@@ -53,39 +46,45 @@
     <h1>{{siteUrl}}</h1>
     <a @click="signOut"><i class="fa fa-sign-out-alt"></i></a>
 </div>
-    <div v-if="currentScreen === 'newPostSection'">
-        <h1 class="post-type-title">New post</h1>
-        <new-post v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></new-post>
+    <div v-show="currentScreen === 'msgQueueSection'">
+        <h1 class="post-type-title">Messages Queue</h1>
+        <msg-queue></msg-queue>
     </div>
-    <div v-if="currentScreen === 'editPostSection'">
-        <h1 class="post-type-title">Edit post</h1>
-        <edit-post v-bind:token="token" v-bind:micropuburl="micropuburl"></edit-post>
-    </div>
-    <div v-if="currentScreen === 'quickNoteSection'">
-        <h1 class="post-type-title">Quick note</h1>
-        <quick-note v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></quick-note>
-    </div>
-    <div v-if="currentScreen === 'replySection'">
-        <h1 class="post-type-title">Reply</h1>
-        <reply-to v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></reply-to>
-    </div>
-    <div v-if="currentScreen === 'shareLinkSection'">
-        <h1 class="post-type-title">Share</h1>
-        <share-link v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></share-link>
-    </div>
-    <div v-if="currentScreen === 'likeSection'">
-        <h1 class="post-type-title">Like &#9829;</h1>
-        <like-page v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></like-page>
-    </div>
-    <div class="media-section">
-    <h2 class="media-toggler" @click="mediaExpanded = !mediaExpanded">Media
-        <i :class="mediaChevron"></i>
-    </h2>
-    <media-manager
-            v-show="mediaExpanded"
-            v-bind:token="token"
-            v-bind:expanded="mediaExpanded"
-            v-bind:mediaurl="mediaurl" ref="media"></media-manager>
+    <div v-show="isEditorScreen">
+        <div v-show="currentScreen === 'newPostSection'">
+            <h1 class="post-type-title">New post</h1>
+            <new-post v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></new-post>
+        </div>
+        <div v-show="currentScreen === 'editPostSection'">
+            <h1 class="post-type-title">Edit post</h1>
+            <edit-post v-bind:token="token" v-bind:micropuburl="micropuburl"></edit-post>
+        </div>
+        <div v-show="currentScreen === 'quickNoteSection'">
+            <h1 class="post-type-title">Quick note</h1>
+            <quick-note v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></quick-note>
+        </div>
+        <div v-show="currentScreen === 'replySection'">
+            <h1 class="post-type-title">Reply</h1>
+            <reply-to v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></reply-to>
+        </div>
+        <div v-show="currentScreen === 'shareLinkSection'">
+            <h1 class="post-type-title">Share</h1>
+            <share-link v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></share-link>
+        </div>
+        <div v-show="currentScreen === 'likeSection'">
+            <h1 class="post-type-title">Like &#9829;</h1>
+            <like-page v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></like-page>
+        </div>
+        <div class="media-section">
+        <h2 class="media-toggler" @click="mediaExpanded = !mediaExpanded">Media
+            <i :class="mediaChevron"></i>
+        </h2>
+        <media-manager
+                v-show="mediaExpanded"
+                v-bind:token="token"
+                v-bind:expanded="mediaExpanded"
+                v-bind:mediaurl="mediaurl" ref="media"></media-manager>
+        </div>
     </div>
 </div>
 
@@ -396,7 +395,11 @@
 <script type="text/x-template" id="postsQueue">
 <div class="post-queue">
     <ol>
-        <li v-for="msg in msgQueue">x</li>
+        <li v-for="msg in msgQueue">
+            <h3>{{msg.title}}</h3>
+            <p class="pending-body">{{msg.preview}}</p>
+            <time>{{msg.published}}</time>
+        </li>
     </ol>
 </div>
 </script>
@@ -426,6 +429,7 @@
         '/autosize.min.js',
         '/client.js',
         '/main.js',
+        '/store.js',
         '/idb.js'
     ]
    });
