@@ -101,7 +101,7 @@ function addToQueue(message) {
         ).then(
             () => {
                 reg.sync.register('outbox');
-                return "Async post"
+                return "Entry queued"
             }
         )
     ).catch(
@@ -111,6 +111,9 @@ function addToQueue(message) {
             if (message.formData) {
                 req.body = prepareFormData(message.body)
             }
+
+            // Change this to also queue the request and if navigator.onLine
+            // then immediately purge all, what about the new post URL?
             return fetch(message.endpoint, req).then(
                 r => r.headers.get('Location'))
             }
