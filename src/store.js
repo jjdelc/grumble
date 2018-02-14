@@ -45,3 +45,25 @@ function prepareFormData(content) {
     );
     return data;
 }
+
+function pruneQueue() {
+    return store.outbox('readonly').then(
+        outbox => outbox.getAll()
+    ).then(
+        messages => Promise.all(messages.map(
+            msg => {
+                let req = msg.request;
+                // Some messages need to get the FormData body
+                req.body = msg.formData?prepareFormData(msg.body):req.body;
+                // On successful submit delete the message
+                return fetch(msg.endpoint, msg.request).then(
+                    () => store.outbox('readwrite')
+                ).then(
+                    outbox => outbox.delete(msg.id)
+                );
+            }
+        ))
+    ).catch(
+        err => console.error(err)
+    )
+}

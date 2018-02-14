@@ -100,8 +100,12 @@ function addToQueue(message) {
             outbox => outbox.put(message)
         ).then(
             () => {
-                reg.sync.register('outbox');
-                return "Entry queued"
+                if ('sync' in reg) {
+                    reg.sync.register('outbox');
+                    return "Entry queued";
+                } else {
+                    pruneQueue();
+                }
             }
         )
     ).catch(
@@ -453,6 +457,9 @@ const pendingQueueComponent = {
                     this.msgQueue = msgs
                 });
             });
+        },
+        sendAll() {
+            pruneQueue().then(() => this.refresh());
         }
     },
     mounted(){
@@ -554,6 +561,9 @@ const mainApp = new Vue({
             const savedScreens = ['newPostSection', 'quickNoteSection'];
             if (savedScreens.includes(screen)) {
                 LastScreen.set(screen)
+            }
+            if (screen === 'msgQueueSection') {
+                this.$refs.queue.refresh();
             }
         }}
 

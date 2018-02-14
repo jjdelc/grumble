@@ -48,7 +48,7 @@
 </div>
     <div v-show="currentScreen === 'msgQueueSection'">
         <h1 class="post-type-title">Messages Queue</h1>
-        <msg-queue></msg-queue>
+        <msg-queue ref="queue"></msg-queue>
     </div>
     <div v-show="isEditorScreen">
         <div v-show="currentScreen === 'newPostSection'">
@@ -394,13 +394,15 @@
 
 <script type="text/x-template" id="postsQueue">
 <div class="post-queue">
-    <ol>
+    <ol v-show="msgQueue.length > 0">
         <li v-for="msg in msgQueue">
             <h3>{{msg.title}}</h3>
             <p class="pending-body">{{msg.preview}}</p>
             <time>{{msg.published}}</time>
         </li>
     </ol>
+    <p v-show="msgQueue.length === 0">No messages queued</p>
+    <p><button @click.prevent="sendAll">Send all</button></p>
 </div>
 </script>
 
