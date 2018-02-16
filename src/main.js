@@ -34,6 +34,8 @@ function readConfig(mpEndpoint, token, key) {
     return fetch(req).then(response => response.json()).then(_config => {
         localStorage.setItem(key, JSON.stringify(_config));
         return _config
+    }).catch(() => {
+        return {} // Offline and no cache? return empty config
     });
 }
 
