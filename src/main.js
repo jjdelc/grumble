@@ -113,36 +113,6 @@ function obtainToken(code, tokenEndpoint) {
 }
 
 
-function _addToQueue(message) {
-    return navigator.serviceWorker.ready.then(
-        reg => store.outbox('readwrite').then(
-            outbox => outbox.put(message)
-        ).then(
-            () => {
-                if ('sync' in reg) {
-                    reg.sync.register('outbox');
-                    return "Entry queued";
-                } else {
-                    pruneQueue();
-                }
-            }
-        )
-    ).catch(
-        // No SyncManager support :( :( :(
-        () => {
-            let req = message.request;
-            if (message.formData) {
-                req.body = prepareFormData(message.body)
-            }
-
-            // Change this to also queue the request and if navigator.onLine
-            // then immediately purge all, what about the new post URL?
-            return fetch(message.endpoint, req).then(
-                r => r.headers.get('Location'))
-            }
-    );
-}
-
 async function addToQueue(message) {
     let registry = undefined;
     try {
@@ -502,7 +472,7 @@ const pendingQueueComponent = {
                     return {
                         title: msg.body.title,
                         preview: msg.body.body.substring(0, 50),
-                        time: msg.body.published
+                        published: msg.body.published
                     }
                 })).then(msgs => {
                     this.msgQueue = msgs

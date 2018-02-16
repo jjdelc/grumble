@@ -45,43 +45,17 @@ function prepareFormData(content) {
     return data;
 }
 
-function xpruneQueue() {
-    let urls = [];
-    return store.outbox('readonly').then(
-        outbox => outbox.getAll()
-    ).then(
-        messages => Promise.all(messages.map(
-            msg => {
-                let req = msg.request;
-                // Some messages need to get the FormData body
-                req.body = msg.formData?prepareFormData(msg.body):req.body;
-                // On successful submit delete the message
-                return fetch(msg.endpoint, msg.request).then(resp => {
-                    urls.push(resp.headers.get('Location'));
-                    return store.outbox('readwrite')
-                }).then(
-                    outbox => {
-                        outbox.delete(msg.id);
-                        return urls.pop();
-                    }
-                );
-            }
-        ))
-    ).catch(
-        err => console.error(err)
-    )
-}
 
 async function pruneQueue() {
-    const outbox = await store.outbox('readwrite');
+    const outbox = await store.outbox('readonly');
     const messages = await outbox.getAll();
     const urlPromises = messages.map(msg => {
         let req = msg.request;
         // Some messages need to get the FormData body
         req.body = msg.formData?prepareFormData(msg.body):req.body;
-        return fetch(msg.endpoint, msg.request).then(resp => {
+        return fetch(msg.endpoint, msg.request).then(async resp => {
             // On successful submit delete the message
-            outbox.delete(msg.id);
+            store.outbox('readwrite').then(ob => ob.delete(msg.id));
             return resp.headers.get('Location');
         }); // And on error? - for only one of the messages
     });
