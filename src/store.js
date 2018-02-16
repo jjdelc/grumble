@@ -55,7 +55,7 @@ async function pruneQueue() {
         req.body = msg.formData?prepareFormData(msg.body):req.body;
         return fetch(msg.endpoint, msg.request).then(async resp => {
             // On successful submit delete the message
-            store.outbox('readwrite').then(ob => ob.delete(msg.id));
+            await store.outbox('readwrite').then(ob => ob.delete(msg.id));
             return resp.headers.get('Location');
         }); // And on error? - for only one of the messages
     });
