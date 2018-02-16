@@ -43,13 +43,13 @@ function readConfig(mpEndpoint, token, key) {
 function micropubConfig(mpEndpoint, token) {
     const key = "mpConfig:" + mpEndpoint;
     if (navigator.onLine) {
-        return readConfig(mpEndpoint, token);
+        return readConfig(mpEndpoint, token, key);
     }
     const config = localStorage.getItem(key);
     if (!!config) {
         return new Promise(resolve => resolve(JSON.parse(config)));
     } else {
-        return readConfig(mpEndpoint, token);
+        return readConfig(mpEndpoint, token, key);
     }
 }
 
