@@ -57,7 +57,9 @@
         </div>
         <div v-show="currentScreen === 'editPostSection'">
             <h1 class="post-type-title">Edit post</h1>
-            <edit-post v-bind:token="token" v-bind:micropuburl="micropuburl"></edit-post>
+            <edit-post v-show="online"
+                    v-bind:token="token" v-bind:micropuburl="micropuburl"></edit-post>
+            <p v-show="!online">Currently offline, Cannot edit posts.</p>
         </div>
         <div v-show="currentScreen === 'quickNoteSection'">
             <h1 class="post-type-title">Quick note</h1>
@@ -75,7 +77,7 @@
             <h1 class="post-type-title">Like &#9829;</h1>
             <like-page v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></like-page>
         </div>
-        <div class="media-section">
+        <div class="media-section" v-show="online">
         <h2 class="media-toggler" @click="mediaExpanded = !mediaExpanded">Media
             <i :class="mediaChevron"></i>
         </h2>
@@ -85,6 +87,7 @@
                 v-bind:expanded="mediaExpanded"
                 v-bind:mediaurl="mediaurl" ref="media"></media-manager>
         </div>
+        <p v-show="!online">Offline - Media not available</p>
     </div>
 </div>
 

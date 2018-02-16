@@ -21,7 +21,7 @@ function discoverLink(url, linkName) {
     }
 }
 
-function micropubConfig(mpEndpoint, token) {
+function readConfig(mpEndpoint, token, key) {
     const params = new URLSearchParams();
     params.append('q', 'config');
     const req = new Request(mpEndpoint + '?' + params.toString(), {
@@ -31,7 +31,24 @@ function micropubConfig(mpEndpoint, token) {
             'Authorization': `Bearer ${token}`,
         }
     });
-    return fetch(req).then(response => response.json());
+    return fetch(req).then(response => response.json()).then(_config => {
+        localStorage.setItem(key, JSON.stringify(_config));
+        return _config
+    });
+}
+
+
+function micropubConfig(mpEndpoint, token) {
+    const key = "mpConfig:" + mpEndpoint;
+    if (navigator.onLine) {
+        return readConfig(mpEndpoint, token);
+    }
+    const config = localStorage.getItem(key);
+    if (!!config) {
+        return new Promise(resolve => resolve(JSON.parse(config)));
+    } else {
+        return readConfig(mpEndpoint, token);
+    }
 }
 
 
@@ -129,16 +146,29 @@ async function addToQueue(message) {
     try {
         registry = await navigator.serviceWorker.ready;
     } catch(err) {
-        // Service worker not ready
+        // Service worker not ready :( - Firefox
     }
-    const outbox = await store.outbox('readwrite');
-4    await outbox.put(message);
+    try {
+        const outbox = await store.outbox('readwrite');
+        await outbox.put(message);
+    } catch(err) {
+        // Something happened, this most likelyt is Firefox's error:
+        // https://github.com/jakearchibald/idb/issues/42
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1383029
+        // We either drop all the idb niceness and rewrite indexedBD usage
+        // or plain don't support offline msg queuing on Firefox.
+        let req = message.request;
+        req.body = message.formData?prepareFormData(message.body):req.body;
+        return fetch(message.endpoint, message.request).then(
+            resp => resp.headers.get('Location')
+        );
+    }
     if (navigator.onLine) {  // Online, prune immediately
         const newPostUrls = await pruneQueue(outbox);
         return newPostUrls[0];
     } else {  // Offline, we sync it if we can. Still message has been queued
         if (!!registry && 'sync' in registry) {
-            registry.sync.register('outbox');
+            registry.sync.register('outbox'); // Triggers pruneQueue
         }
         return 'Entry queued';
     }
@@ -510,6 +540,9 @@ const mainApp = new Vue({
                 'replySection', 'shareLinkSection', 'likeSection'
             ];
             return editorScreens.includes(this.currentScreen);
+        },
+        online() {
+            return navigator.onLine;
         },
         displayChrome(){
             return this.currentScreen !== 'authSection'

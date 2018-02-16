@@ -72,8 +72,8 @@ function xpruneQueue() {
     )
 }
 
-async function pruneQueue(_outbox) {
-    const outbox = _outbox || await store.outbox('readwrite');
+async function pruneQueue() {
+    const outbox = await store.outbox('readwrite');
     const messages = await outbox.getAll();
     const urlPromises = messages.map(msg => {
         let req = msg.request;
