@@ -21,7 +21,7 @@ function discoverLink(url, linkName) {
     }
 }
 
-function micropubConfig(mpEndpoint, token) {
+function readConfig(mpEndpoint, token, key) {
     const params = new URLSearchParams();
     params.append('q', 'config');
     const req = new Request(mpEndpoint + '?' + params.toString(), {
@@ -31,7 +31,24 @@ function micropubConfig(mpEndpoint, token) {
             'Authorization': `Bearer ${token}`,
         }
     });
-    return fetch(req).then(response => response.json());
+    return fetch(req).then(response => response.json()).then(_config => {
+        localStorage.setItem(key, JSON.stringify(_config));
+        return _config
+    });
+}
+
+
+function micropubConfig(mpEndpoint, token) {
+    const key = "mpConfig:" + mpEndpoint;
+    if (navigator.onLine) {
+        return readConfig(mpEndpoint, token);
+    }
+    const config = localStorage.getItem(key);
+    if (!!config) {
+        return new Promise(resolve => resolve(JSON.parse(config)));
+    } else {
+        return readConfig(mpEndpoint, token);
+    }
 }
 
 
@@ -94,32 +111,84 @@ function obtainToken(code, tokenEndpoint) {
 }
 
 
-function publishContent(endpoint, token, content) {
-    const data = new FormData();
-    if (!!content.replyTo) {
-        data.append('in-reply-to', content.replyTo);
-    }
-    if (!!content.title) {
-        data.append('name', content.title);
-    }
-    if (!!content.bookmark) {
-        data.append('bookmark-of', content.bookmark);
-    }
-    data.append('content', content.body);
-    data.append('h', content.type);
-    data.append('published', (new Date()).toISOString());
-    (content.images || []).forEach(img => data.append('photo', img));
-    content.syndicateTo.forEach(
-        targetUid => data.append('mp-syndicate-to', targetUid)
+function _addToQueue(message) {
+    return navigator.serviceWorker.ready.then(
+        reg => store.outbox('readwrite').then(
+            outbox => outbox.put(message)
+        ).then(
+            () => {
+                if ('sync' in reg) {
+                    reg.sync.register('outbox');
+                    return "Entry queued";
+                } else {
+                    pruneQueue();
+                }
+            }
+        )
+    ).catch(
+        // No SyncManager support :( :( :(
+        () => {
+            let req = message.request;
+            if (message.formData) {
+                req.body = prepareFormData(message.body)
+            }
+
+            // Change this to also queue the request and if navigator.onLine
+            // then immediately purge all, what about the new post URL?
+            return fetch(message.endpoint, req).then(
+                r => r.headers.get('Location'))
+            }
     );
-    return fetch(endpoint, {
-        method: 'POST',
-        body: data,
-        mode: 'cors',
-        headers: {
-            'Authorization': `Bearer ${token}`,
+}
+
+async function addToQueue(message) {
+    let registry = undefined;
+    try {
+        registry = await navigator.serviceWorker.ready;
+    } catch(err) {
+        // Service worker not ready :( - Firefox
+    }
+    try {
+        const outbox = await store.outbox('readwrite');
+        await outbox.put(message);
+    } catch(err) {
+        // Something happened, this most likelyt is Firefox's error:
+        // https://github.com/jakearchibald/idb/issues/42
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1383029
+        // We either drop all the idb niceness and rewrite indexedBD usage
+        // or plain don't support offline msg queuing on Firefox.
+        let req = message.request;
+        req.body = message.formData?prepareFormData(message.body):req.body;
+        return fetch(message.endpoint, message.request).then(
+            resp => resp.headers.get('Location')
+        );
+    }
+    if (navigator.onLine) {  // Online, prune immediately
+        const newPostUrls = await pruneQueue(outbox);
+        return newPostUrls[0];
+    } else {  // Offline, we sync it if we can. Still message has been queued
+        if (!!registry && 'sync' in registry) {
+            registry.sync.register('outbox'); // Triggers pruneQueue
         }
-    }).then(r => r.headers.get('Location'));
+        return 'Entry queued';
+    }
+}
+
+
+function publishContent(endpoint, token, content) {
+    const msg = {
+        endpoint,
+        formData: true,
+        body: content,
+        request: {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            }
+        }
+    };
+    return addToQueue(msg);
 }
 
 function sourcePostProperties(endpoint, token, postUrl) {
@@ -251,7 +320,8 @@ const baseEditor = {
                 body: this.postBody,
                 type: this.postType,
                 images: this.postImages,
-                syndicateTo: this.syndicateTo
+                syndicateTo: this.syndicateTo,
+                published: new Date().toISOString()
             };
         },
         isEmpty(){
@@ -266,6 +336,7 @@ const baseEditor = {
             ).then(postURL => {
                 this.clearFields();
                 this.postURL = postURL;
+                this.$refs.postBody.style.height = 0; // Resets textarea height
             }).then(() => this.showOverlay = false).catch((err) => {
                 this.showOverlay = false;
                 return Vue.nextTick().then(() => {
@@ -298,7 +369,8 @@ replyToComponent.methods.buildData = function() {
         replyTo: this.postTitle,
         body: this.postBody,
         type: this.postType,
-        syndicateTo: this.syndicateTo
+        syndicateTo: this.syndicateTo,
+        published: new Date().toISOString()
     };
 };
 let shareLinkComponent = Object.create(baseEditor);
@@ -309,7 +381,21 @@ shareLinkComponent.methods.buildData = function() {
         bookmark: this.postTitle,
         body: this.postBody,
         type: this.postType,
-        syndicateTo: this.syndicateTo
+        syndicateTo: this.syndicateTo,
+        published: new Date().toISOString()
+    };
+};
+
+let likeComponent = Object.create(baseEditor);
+likeComponent.template = '#likeEditor';
+likeComponent.methods = Object.assign({}, baseEditor.methods);
+likeComponent.methods.buildData = function() {
+    return {
+        like: this.postTitle,
+        body: this.postBody,
+        type: this.postType,
+        syndicateTo: this.syndicateTo,
+        published: new Date().toISOString()
     };
 };
 
@@ -400,6 +486,36 @@ const mediaComponent = {
     }
 };
 
+const pendingQueueComponent = {
+    template: '#postsQueue',
+    data() {
+        return {
+            msgQueue: []
+        }
+    },
+    methods: {
+        refresh() {
+            store.outbox('readonly').then(outbox => {
+                outbox.getAll().then(messages => messages.map(msg => {
+                    return {
+                        title: msg.body.title,
+                        preview: msg.body.body.substring(0, 50),
+                        time: msg.body.published
+                    }
+                })).then(msgs => {
+                    this.msgQueue = msgs
+                });
+            });
+        },
+        sendAll() {
+            pruneQueue().then(() => this.refresh());
+        }
+    },
+    mounted(){
+        this.refresh();
+    }
+};
+
 const mainApp = new Vue({
     el: '#mainApp',
     data: {
@@ -418,6 +534,19 @@ const mainApp = new Vue({
                 'fa fa-chevron-right': !this.mediaExpanded,
                 'fa fa-chevron-down': this.mediaExpanded
             }
+        },
+        isEditorScreen() {
+            const editorScreens = [
+                'newPostSection', 'editPostSection', 'quickNoteSection',
+                'replySection', 'shareLinkSection', 'likeSection'
+            ];
+            return editorScreens.includes(this.currentScreen);
+        },
+        online() {
+            return navigator.onLine;
+        },
+        displayChrome(){
+            return this.currentScreen !== 'authSection'
         }
     },
     methods: {
@@ -425,12 +554,13 @@ const mainApp = new Vue({
             if (confirm("Clear local storage?")) {
                 localStorage.clear();
                 console.log('localStorage cleared');
+                this.requestAuth();
             }
         },
         reload(){
             window.location.reload();
         },
-        reset(){
+        resetFields(){
             this.token = null;
             this.siteUrl = null;
             this.mediaurl = null;
@@ -438,7 +568,7 @@ const mainApp = new Vue({
         },
         requestAuth(){
             this.currentScreen = 'authSection';
-            this.reset()
+            this.resetFields()
         },
         setupMp(auth) {
             if (!!this.token) return;
@@ -484,6 +614,9 @@ const mainApp = new Vue({
             if (savedScreens.includes(screen)) {
                 LastScreen.set(screen)
             }
+            if (screen === 'msgQueueSection') {
+                this.$refs.queue.refresh();
+            }
         }}
 
     ,
@@ -494,7 +627,9 @@ const mainApp = new Vue({
         'media-manager': mediaComponent,
         'quick-note': quickNoteComponent,
         'reply-to': replyToComponent,
-        'share-link': shareLinkComponent
+        'share-link': shareLinkComponent,
+        'like-page': likeComponent,
+        'msg-queue': pendingQueueComponent
     }
 });
 

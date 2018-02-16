@@ -20,9 +20,7 @@
     <!--<button @click="resetApp">Reset app</button>-->
 </div>
 
-<div class="post-editor-screen"
-     v-if="['newPostSection', 'editPostSection', 'quickNoteSection', 'replySection', 'shareLinkSection'].includes(currentScreen)"
->
+<div class="post-editor-screen" v-show="displayChrome">
 <div class="options-sidebar" v-show="showSidebar">
     <div class="top-bar">
         <a @click.prevent="toggleOptions"><i class="fa fa-bars"></i></a>
@@ -30,12 +28,14 @@
     </div>
     <ul class="opts-menu">
         <li><a @click.prevent="triggerMenu('newPostSection')">New Post</a></li>
-        <li><a @click.prevent="triggerMenu('editPostSection')">Edit Post</a></li>
         <li><a @click.prevent="triggerMenu('quickNoteSection')">Quick note</a></li>
+        <li><a @click.prevent="triggerMenu('editPostSection')">Edit Post</a></li>
         <li><a @click.prevent="triggerMenu('replySection')">Reply</a></li>
         <li><a @click.prevent="triggerMenu('shareLinkSection')">Share link</a></li>
-        <li><a href="#">Like page</a></li>
+        <li><a @click.prevent="triggerMenu('likeSection')">Like page</a></li>
         <li><a href="#">RSVP</a></li>
+        <li class="separator"></li>
+        <li><a @click.prevent="triggerMenu('msgQueueSection')">Queue</a></li>
         <li class="separator"></li>
         <li><a @click="reload">Reload app</a></li>
         <li><a @click="resetApp">Reset app</a></li>
@@ -46,35 +46,48 @@
     <h1>{{siteUrl}}</h1>
     <a @click="signOut"><i class="fa fa-sign-out-alt"></i></a>
 </div>
-    <div v-if="currentScreen === 'newPostSection'">
-        <h1 class="post-type-title">New post</h1>
-        <new-post v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></new-post>
+    <div v-show="currentScreen === 'msgQueueSection'">
+        <h1 class="post-type-title">Messages Queue</h1>
+        <msg-queue ref="queue"></msg-queue>
     </div>
-    <div v-if="currentScreen === 'editPostSection'">
-        <h1 class="post-type-title">Edit post</h1>
-        <edit-post v-bind:token="token" v-bind:micropuburl="micropuburl"></edit-post>
-    </div>
-    <div v-if="currentScreen === 'quickNoteSection'">
-        <h1 class="post-type-title">Quick note</h1>
-        <quick-note v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></quick-note>
-    </div>
-    <div v-if="currentScreen === 'replySection'">
-        <h1 class="post-type-title">Reply</h1>
-        <reply-to v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></reply-to>
-    </div>
-    <div v-if="currentScreen === 'shareLinkSection'">
-        <h1 class="post-type-title">Share</h1>
-        <share-link v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></share-link>
-    </div>
-    <div class="media-section">
-    <h2 class="media-toggler" @click="mediaExpanded = !mediaExpanded">Media
-        <i :class="mediaChevron"></i>
-    </h2>
-    <media-manager
-            v-show="mediaExpanded"
-            v-bind:token="token"
-            v-bind:expanded="mediaExpanded"
-            v-bind:mediaurl="mediaurl" ref="media"></media-manager>
+    <div v-show="isEditorScreen">
+        <div v-show="currentScreen === 'newPostSection'">
+            <h1 class="post-type-title">New post</h1>
+            <new-post v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></new-post>
+        </div>
+        <div v-show="currentScreen === 'editPostSection'">
+            <h1 class="post-type-title">Edit post</h1>
+            <edit-post v-show="online"
+                    v-bind:token="token" v-bind:micropuburl="micropuburl"></edit-post>
+            <p v-show="!online">Currently offline, Cannot edit posts.</p>
+        </div>
+        <div v-show="currentScreen === 'quickNoteSection'">
+            <h1 class="post-type-title">Quick note</h1>
+            <quick-note v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></quick-note>
+        </div>
+        <div v-show="currentScreen === 'replySection'">
+            <h1 class="post-type-title">Reply</h1>
+            <reply-to v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></reply-to>
+        </div>
+        <div v-show="currentScreen === 'shareLinkSection'">
+            <h1 class="post-type-title">Share</h1>
+            <share-link v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></share-link>
+        </div>
+        <div v-show="currentScreen === 'likeSection'">
+            <h1 class="post-type-title">Like &#9829;</h1>
+            <like-page v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></like-page>
+        </div>
+        <div class="media-section" v-show="online">
+        <h2 class="media-toggler" @click="mediaExpanded = !mediaExpanded">Media
+            <i :class="mediaChevron"></i>
+        </h2>
+        <media-manager
+                v-show="mediaExpanded"
+                v-bind:token="token"
+                v-bind:expanded="mediaExpanded"
+                v-bind:mediaurl="mediaurl" ref="media"></media-manager>
+        </div>
+        <p v-show="!online">Offline - Media not available</p>
     </div>
 </div>
 
@@ -341,8 +354,90 @@
 </div>
 </script>
 
+<script type="text/x-template" id="likeEditor">
+<div class="postSection">
+    <div class="post-overlay" v-show="showOverlay">
+        <span>
+        <i class="fa fa-sync fa-spin"></i>
+        </span>
+    </div>
+    <form :action="micropuburl"
+          @submit.prevent="submitPost"
+          method="POST" enctype="multipart/form-data">
+        <div class="post-editor">
+            <p><input
+                    type="url" class="post-title" focus
+                    name="name" v-model="postTitle" autocomplete="off"
+                    placeholder="Page to like"/></p>
+            <p><textarea ref="postBody"
+                    placeholder="Note..."
+                    class="post-body"
+                    v-model="postBody" name="content"></textarea></p>
+        <input type="hidden" name="h" v-bind:value="postType"/>
+        <div class="form-footer">
+            <div class="form-syndication">
+                <label v-for="target in syndication.syndicationTargets">
+                <input type="checkbox" name="syndicate-to" :value="target.uid" v-model="syndicateTo">
+                <img :src="target.service.photo">
+                {{target.name}}
+            </label>
+            </div>
+            <div class="form-submit">
+            <button type="submit">Like page &#9829;</button>
+            </div>
+        </div>
+        <p v-show="postURL !== ''" class="new-post-link">
+            <a :href="postURL" target="_blank">View post</a>
+            <input :value="postURL" readonly>
+        </p>
+        </div>
+    </form>
+</div>
+</script>
+
+<script type="text/x-template" id="postsQueue">
+<div class="post-queue">
+    <ol v-show="msgQueue.length > 0">
+        <li v-for="msg in msgQueue">
+            <h3>{{msg.title}}</h3>
+            <p class="pending-body">{{msg.preview}}</p>
+            <time>{{msg.published}}</time>
+        </li>
+    </ol>
+    <p v-show="msgQueue.length === 0">No messages queued</p>
+    <p><button @click.prevent="sendAll">Send all</button></p>
+</div>
+</script>
+
 <script src="autosize.min.js"></script>
 <script src="client.js"></script>
+<script src="idb.js"></script>
+<script src="store.js"></script>
 <script src="main.js"></script>
+<script src="upup.min.js"></script>
+<script>
+    if ('serviceWorker' in navigator) {
+        store.init();
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+            if (!reg.sync) {
+                console.log("No background sync support :(");
+            }
+        });
+    }
+
+    UpUp.start({
+    'content-url': 'index.html',
+    'assets': [
+        '/favicon.png?v=0',
+        '/manifest.json?v=2',
+        '/style.css',
+        '/autosize.min.js',
+        '/client.js',
+        '/main.js',
+        '/store.js',
+        '/idb.js'
+    ]
+   });
+</script>
 </body>
 </html>
