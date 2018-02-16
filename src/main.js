@@ -336,6 +336,7 @@ const baseEditor = {
             ).then(postURL => {
                 this.clearFields();
                 this.postURL = postURL;
+                this.$refs.postBody.style.height = 0; // Resets textarea height
             }).then(() => this.showOverlay = false).catch((err) => {
                 this.showOverlay = false;
                 return Vue.nextTick().then(() => {
