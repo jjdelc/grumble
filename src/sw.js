@@ -2,7 +2,9 @@ importScripts('/idb.js');
 importScripts('/store.js');
 
 self.addEventListener('sync', function(event) {
-    event.waitUntil(pruneQueue);
+    if (event.tag == 'outbox') {
+        event.waitUntil(pruneQueue());
+    }
 });
 
 

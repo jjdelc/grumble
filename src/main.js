@@ -94,7 +94,7 @@ function obtainToken(code, tokenEndpoint) {
 }
 
 
-function addToQueue(message) {
+function _addToQueue(message) {
     return navigator.serviceWorker.ready.then(
         reg => store.outbox('readwrite').then(
             outbox => outbox.put(message)
@@ -124,7 +124,25 @@ function addToQueue(message) {
     );
 }
 
-
+async function addToQueue(message) {
+    let registry = undefined;
+    try {
+        registry = await navigator.serviceWorker.ready;
+    } catch(err) {
+        // Service worker not ready
+    }
+    const outbox = await store.outbox('readwrite');
+4    await outbox.put(message);
+    if (navigator.onLine) {  // Online, prune immediately
+        const newPostUrls = await pruneQueue(outbox);
+        return newPostUrls[0];
+    } else {  // Offline, we sync it if we can. Still message has been queued
+        if (!!registry && 'sync' in registry) {
+            registry.sync.register('outbox');
+        }
+        return 'Entry queued';
+    }
+}
 
 
 function publishContent(endpoint, token, content) {

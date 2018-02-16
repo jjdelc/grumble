@@ -13,7 +13,6 @@ const store = {
         db => store.db = db
     );
   },
-
   outbox(mode) {
     return store.init().then(
         db => db.transaction('outbox', mode).objectStore('outbox')
@@ -46,7 +45,8 @@ function prepareFormData(content) {
     return data;
 }
 
-function pruneQueue() {
+function xpruneQueue() {
+    let urls = [];
     return store.outbox('readonly').then(
         outbox => outbox.getAll()
     ).then(
@@ -56,14 +56,34 @@ function pruneQueue() {
                 // Some messages need to get the FormData body
                 req.body = msg.formData?prepareFormData(msg.body):req.body;
                 // On successful submit delete the message
-                return fetch(msg.endpoint, msg.request).then(
-                    () => store.outbox('readwrite')
-                ).then(
-                    outbox => outbox.delete(msg.id)
+                return fetch(msg.endpoint, msg.request).then(resp => {
+                    urls.push(resp.headers.get('Location'));
+                    return store.outbox('readwrite')
+                }).then(
+                    outbox => {
+                        outbox.delete(msg.id);
+                        return urls.pop();
+                    }
                 );
             }
         ))
     ).catch(
         err => console.error(err)
     )
+}
+
+async function pruneQueue(_outbox) {
+    const outbox = _outbox || await store.outbox('readwrite');
+    const messages = await outbox.getAll();
+    const urlPromises = messages.map(msg => {
+        let req = msg.request;
+        // Some messages need to get the FormData body
+        req.body = msg.formData?prepareFormData(msg.body):req.body;
+        return fetch(msg.endpoint, msg.request).then(resp => {
+            // On successful submit delete the message
+            outbox.delete(msg.id);
+            return resp.headers.get('Location');
+        }); // And on error? - for only one of the messages
+    });
+    return Promise.all(urlPromises);
 }
