@@ -472,12 +472,18 @@ const pendingQueueComponent = {
                     return {
                         title: msg.body.title,
                         preview: msg.body.body.substring(0, 50),
-                        published: msg.body.published
+                        published: msg.body.published,
+                        id: msg.id
                     }
                 })).then(msgs => {
                     this.msgQueue = msgs
                 });
             });
+        },
+        async deleteMsg(msgId) {
+            const outbox = await store.outbox('readwrite');
+            await outbox.delete(msgId);
+            this.refresh();
         },
         sendAll() {
             pruneQueue().then(() => this.refresh());

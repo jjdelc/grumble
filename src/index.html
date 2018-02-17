@@ -402,6 +402,7 @@
             <h3>{{msg.title}}</h3>
             <p class="pending-body">{{msg.preview}}</p>
             <time>{{msg.published}}</time>
+            <button @click.prevent="deleteMsg(msg.id)"><i class="fa fa-close"></i></button>
         </li>
     </ol>
     <p v-show="msgQueue.length === 0">No messages queued</p>

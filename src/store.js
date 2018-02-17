@@ -57,7 +57,11 @@ async function pruneQueue() {
             // On successful submit delete the message
             await store.outbox('readwrite').then(ob => ob.delete(msg.id));
             return resp.headers.get('Location');
-        }); // And on error? - for only one of the messages
+        }).catch(err => {
+            // There was n error with this post, server didn't like it.
+            // then keep it, "handle" the error and carry on with the next msg.
+            console.log(err);
+        });
     });
     return Promise.all(urlPromises);
 }
