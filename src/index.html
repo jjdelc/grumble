@@ -127,11 +127,20 @@
                     type="text" class="post-title" focus
                     name="name" v-model="postTitle" autocomplete="off"
                     placeholder="Optional title"/></p>
-            <p><input type="file" name="photo"
+
+            <p>
+                <label>
+                <img class="img-preview"
+                     v-for="img in postImages"
+                     v-bind:src="asDataUrl(img)"
+                     v-show="postImages.length > 0" >
+                <input type="file" name="photo"
                       @change="loadFile($event.target.files)"
                       ref="fileField" multiple
                       tabindex="-1"
-                      accept="image/*"></p>
+                      accept="image/*">
+                </label>
+            </p>
             <p><textarea ref="postBody"
                     placeholder="blog post here"
                     class="post-body"
