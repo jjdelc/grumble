@@ -138,7 +138,7 @@
                       @change="loadFile($event.target.files)"
                       ref="fileField" multiple
                       tabindex="-1"
-                      accept="image/*">
+                      accept="image/*, video/*">
                 </label>
             </p>
             <p><textarea ref="postBody"
@@ -216,7 +216,7 @@
           method="POST" enctype="multipart/form-data">
         <input type="file"
                @change="loadFiles($event.target.files)"
-               multiple name="file" accept="image/*"
+               multiple name="file" accept="image/*, video/*"
                ref="fileField"
                required/>
         <button type="submit"><i class="fa fa-upload"></i>&nbsp;</button>
@@ -260,11 +260,15 @@
                      v-for="img in postImages"
                      v-bind:src="asDataUrl(img)"
                      v-show="postImages.length > 0" >
+                <video class="vid-preview"
+                       v-for="vid in postVideos"
+                       v-bind:src="asDataUrl(vid)"
+                       v-show="postVideos.length > 0" ></video>
                 <input type="file" name="photo"
                       @change="loadFile($event.target.files)"
                       ref="fileField" multiple
                       tabindex="-1"
-                      accept="image/*">
+                      accept="image/*, video/*">
                 </label>
             </p>
         <input type="hidden" name="h" v-bind:value="postType"/>

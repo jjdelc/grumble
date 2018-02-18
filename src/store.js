@@ -39,6 +39,7 @@ function prepareFormData(content) {
     data.append('h', content.type);
     data.append('published', content.published || (new Date()).toISOString());
     (content.images || []).forEach(img => data.append('photo', img));
+    (content.videos || []).forEach(vid => data.append('video', vid));
     content.syndicateTo.forEach(
         targetUid => data.append('mp-syndicate-to', targetUid)
     );

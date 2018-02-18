@@ -268,7 +268,8 @@ const baseEditor = {
             postURL: "",
             showOverlay: false,
             syndicateTo: [],
-            previewImg: null
+            previewImg: null,
+            postVideos: []
         }
     },
     mounted() {
@@ -286,11 +287,16 @@ const baseEditor = {
     },
     methods: {
         loadFile(files) {
-            if (files.length > 0) {
-                this.postImages = [...files];
-            } else {
-                this.postImages = [];
-            }
+            this.postImages = [];
+            this.postVideos = [];
+            [...files].forEach(file => {
+                const fType = file.type.substring(0, 5);
+                if (fType === 'video') {
+                    this.postVideos.push(file);
+                } else if (fType === 'image') {
+                    this.postImages.push(file);
+                }
+            });
         },
         asDataUrl(imgFile) {
             return URL.createObjectURL(imgFile);
@@ -301,6 +307,7 @@ const baseEditor = {
                 body: this.postBody,
                 type: this.postType,
                 images: this.postImages,
+                videos: this.postVideos,
                 syndicateTo: this.syndicateTo,
                 published: new Date().toISOString()
             };
@@ -330,6 +337,7 @@ const baseEditor = {
             this.postTitle = "";
             this.postURL = "";
             this.postImages = [];
+            this.postVideos = [];
             if (!!this.$refs.fileField)
                 this.$refs.fileField.value = '';
         }
