@@ -134,6 +134,10 @@
                      v-for="img in postImages"
                      v-bind:src="asDataUrl(img)"
                      v-show="postImages.length > 0" >
+                <video class="vid-preview"
+                   v-for="vid in postVideos"
+                   v-bind:src="asDataUrl(vid)"
+                   v-show="postVideos.length > 0" ></video>
                 <input type="file" name="photo"
                       @change="loadFile($event.target.files)"
                       ref="fileField" multiple
