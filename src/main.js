@@ -267,7 +267,8 @@ const baseEditor = {
             postType: "entry",
             postURL: "",
             showOverlay: false,
-            syndicateTo: []
+            syndicateTo: [],
+            previewImg: null
         }
     },
     mounted() {
@@ -290,6 +291,9 @@ const baseEditor = {
             } else {
                 this.postImages = [];
             }
+        },
+        asDataUrl(imgFile) {
+            return URL.createObjectURL(imgFile);
         },
         buildData(){
             return {
@@ -482,7 +486,8 @@ const pendingQueueComponent = {
                         title: msg.body.title,
                         preview: msg.body.body.substring(0, 75),
                         published: msg.body.published,
-                        id: msg.id
+                        id: msg.id,
+                        totalImages: msg.body.images.length
                     }
                 })).then(msgs => {
                     this.msgQueue = msgs
@@ -490,9 +495,11 @@ const pendingQueueComponent = {
             });
         },
         async deleteMsg(msgId) {
-            const outbox = await store.outbox('readwrite');
-            await outbox.delete(msgId);
-            this.refresh();
+            if (confirm("Delete this message?")) {
+                const outbox = await store.outbox('readwrite');
+                await outbox.delete(msgId);
+                this.refresh();
+            }
         },
         sendAll() {
             pruneQueue().then(() => this.refresh());

@@ -214,9 +214,7 @@
     </form>
     <ol v-if="fileList.length > 0" class="media-list">
         <li v-for="fileUrl in fileList" @click="toggleItem($event.target)">
-            <figure>
             <img v-bind:src="expanded?fileUrl:'/favicon.png'">
-            </figure>
             <div class="pic-info">
                 <p><label>URL: <input type="text"
                    class="file-url" @click.prevent="copyContent($event.target)"
@@ -247,11 +245,19 @@
                     placeholder="Quick note"
                     class="post-body"
                     v-model="postBody" name="content"></textarea></p>
-            <p><input type="file" name="photo"
+            <p>
+                <label>
+                <img class="img-preview"
+                     v-for="img in postImages"
+                     v-bind:src="asDataUrl(img)"
+                     v-show="postImages.length > 0" >
+                <input type="file" name="photo"
                       @change="loadFile($event.target.files)"
                       ref="fileField" multiple
                       tabindex="-1"
-                      accept="image/*"></p>
+                      accept="image/*">
+                </label>
+            </p>
         <input type="hidden" name="h" v-bind:value="postType"/>
         <div class="form-footer">
             <div class="form-syndication">
@@ -404,6 +410,7 @@
             <a class="delete-queued-msg" @click.prevent="deleteMsg(msg.id)"><i class="fas fa-times-circle"></i></a>
             <h3>{{msg.title}}</h3>
             <p class="pending-body">{{msg.preview}}</p>
+            <p v-show="msg.totalImages > 0" class="total-attachments">{{msg.totalImages}} attachments</p>
             <time>{{msg.published}}</time>
         </li>
     </ol>
