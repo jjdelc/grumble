@@ -136,7 +136,7 @@
                      v-show="postImages.length > 0" >
                 <video class="vid-preview"
                    v-for="vid in postVideos"
-                   v-bind:src="asDataUrl(vid)"
+                   v-bind:src="asDataUrl(vid)" controls muted
                    v-show="postVideos.length > 0" ></video>
                 <input type="file" name="photo"
                       @change="loadFile($event.target.files)"
@@ -266,7 +266,7 @@
                      v-show="postImages.length > 0" >
                 <video class="vid-preview"
                        v-for="vid in postVideos"
-                       v-bind:src="asDataUrl(vid)"
+                       v-bind:src="asDataUrl(vid)" controls muted
                        v-show="postVideos.length > 0" ></video>
                 <input type="file" name="photo"
                       @change="loadFile($event.target.files)"
