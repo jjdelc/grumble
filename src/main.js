@@ -34,22 +34,22 @@ function readConfig(mpEndpoint, token, key) {
     return fetch(req).then(response => response.json()).then(_config => {
         localStorage.setItem(key, JSON.stringify(_config));
         return _config
-    }).catch(() => {
-        return {} // Offline and no cache? return empty config
     });
 }
 
 
 function micropubConfig(mpEndpoint, token) {
     const key = "mpConfig:" + mpEndpoint;
-    if (navigator.onLine) {
-        return readConfig(mpEndpoint, token, key);
-    }
     const config = localStorage.getItem(key);
+    const parsedConfig = !!config?JSON.parse(config):{};
+
+    if (navigator.onLine) {
+        return readConfig(mpEndpoint, token, key).catch(() => parsedConfig);
+    }
     if (!!config) {
-        return new Promise(resolve => resolve(JSON.parse(config)));
+        return new Promise(resolve => resolve(parsedConfig));
     } else {
-        return readConfig(mpEndpoint, token, key);
+        return readConfig(mpEndpoint, token, key).catch(() => parsedConfig);
     }
 }
 
@@ -136,7 +136,7 @@ async function addToQueue(message) {
         );
     }
     if (navigator.onLine) {  // Online, prune immediately
-        const newPostUrls = await pruneQueue(outbox);
+        const newPostUrls = await pruneQueue();
         return newPostUrls[0];
     } else {  // Offline, we sync it if we can. Still message has been queued
         if (!!registry && 'sync' in registry) {
@@ -206,7 +206,12 @@ function getMediaList(mediaUrl, token) {
         headers: {
             'Authorization': `Bearer ${token}`,
         }
-    }).then(r => r.json());
+    }).then(
+        r => r.json()
+    ).catch(err => {
+        console.log("Could not retrieve media list", err.message);
+        return [];
+    });
 }
 
 
@@ -429,9 +434,11 @@ const mediaComponent = {
     },
     methods: {
         discover(){
-            getMediaList(this.mediaurl, this.token).then(fileList => {
-                this.fileList = fileList
-            });
+            if (!!this.mediaurl) {
+                getMediaList(this.mediaurl, this.token).then(fileList => {
+                    this.fileList = fileList
+                });
+            }
         },
         loadFiles(files) {
             [...files].forEach(f => this.mediaFiles.push(f));
@@ -440,7 +447,9 @@ const mediaComponent = {
             uploadMedia(this.mediaurl, this.token, this.mediaFiles).then(() => {
                 this.discover();
                 this.$refs.fileField.value = '';
-            });
+            }).catch(
+                () => alert("Could not upload file. Server probably unavailable")
+            );
         },
         copyContent(el) {
             el.select();
@@ -471,7 +480,7 @@ const pendingQueueComponent = {
                 outbox.getAll().then(messages => messages.map(msg => {
                     return {
                         title: msg.body.title,
-                        preview: msg.body.body.substring(0, 50),
+                        preview: msg.body.body.substring(0, 75),
                         published: msg.body.published,
                         id: msg.id
                     }
