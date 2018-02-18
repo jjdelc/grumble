@@ -175,8 +175,8 @@ function sourcePostProperties(endpoint, token, postUrl) {
         }
     }).then(r => r.json()).then(attrs => {
         return {
-            content: attrs.properties.content[0],
-            title: attrs.properties.name[0]
+            content: attrs.properties.content[0] || "",
+            title: attrs.properties.name[0] || ""
         }
     })
 }
