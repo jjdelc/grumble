@@ -345,47 +345,66 @@ const baseEditor = {
 };
 
 
-let newPostComponent = Object.create(baseEditor);
-newPostComponent.template = '#newPostEditor';
-let quickNoteComponent = Object.create(baseEditor);
-quickNoteComponent.template = '#quickNoteEditor';
-
-let replyToComponent = Object.create(baseEditor);
-replyToComponent.template = '#replyEditor';
-replyToComponent.methods = Object.assign({}, baseEditor.methods);
-replyToComponent.methods.buildData = function() {
-    return {
-        replyTo: this.postTitle,
-        body: this.postBody,
-        type: this.postType,
-        syndicateTo: this.syndicateTo,
-        published: new Date().toISOString()
-    };
-};
-let shareLinkComponent = Object.create(baseEditor);
-shareLinkComponent.template = '#shareLinkEditor';
-shareLinkComponent.methods = Object.assign({}, baseEditor.methods);
-shareLinkComponent.methods.buildData = function() {
-    return {
-        bookmark: this.postTitle,
-        body: this.postBody,
-        type: this.postType,
-        syndicateTo: this.syndicateTo,
-        published: new Date().toISOString()
-    };
+const newPostComponent = {
+    template: '#newPostEditor',
+    mixins: [baseEditor]
 };
 
-let likeComponent = Object.create(baseEditor);
-likeComponent.template = '#likeEditor';
-likeComponent.methods = Object.assign({}, baseEditor.methods);
-likeComponent.methods.buildData = function() {
-    return {
-        like: this.postTitle,
-        body: this.postBody,
-        type: this.postType,
-        syndicateTo: this.syndicateTo,
-        published: new Date().toISOString()
-    };
+
+const quickNoteComponent = {
+    template: '#quickNoteEditor',
+    mixins: [baseEditor]
+};
+
+
+const replyToComponent = {
+    template: '#replyEditor',
+    mixins: [baseEditor],
+    methods: {
+        buildData(){
+            return {
+                replyTo: this.postTitle,
+                body: this.postBody,
+                type: this.postType,
+                syndicateTo: this.syndicateTo,
+                published: new Date().toISOString()
+            };
+        }
+    }
+};
+
+
+const shareLinkComponent = {
+    template: '#shareLinkEditor',
+    mixins: [baseEditor],
+    methods: {
+        buildData(){
+            return {
+                bookmark: this.postTitle,
+                body: this.postBody,
+                type: this.postType,
+                syndicateTo: this.syndicateTo,
+                published: new Date().toISOString()
+            };
+        }
+    }
+};
+
+
+const likeComponent = {
+    template: '#likeEditor',
+    mixins: [baseEditor],
+    methods: {
+        buildData(){
+            return {
+                like: this.postTitle,
+                body: this.postBody,
+                type: this.postType,
+                syndicateTo: this.syndicateTo,
+                published: new Date().toISOString()
+            };
+        }
+    }
 };
 
 
