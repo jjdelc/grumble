@@ -269,7 +269,8 @@ const baseEditor = {
             showOverlay: false,
             syndicateTo: [],
             previewImg: null,
-            postVideos: []
+            postVideos: [],
+            postSuccessURL: ""
         }
     },
     mounted() {
@@ -321,9 +322,9 @@ const baseEditor = {
             const data = this.buildData();
             Vue.nextTick().then(
                 () => publishContent(this.micropuburl, this.token, data)
-            ).then(postURL => {
+            ).then(postSuccessURL => {
                 this.clearFields();
-                this.postURL = postURL;
+                this.postSuccessURL = postSuccessURL;
                 this.$refs.postBody.style.height = 0; // Resets textarea height
             }).then(() => this.showOverlay = false).catch((err) => {
                 this.showOverlay = false;
@@ -363,7 +364,7 @@ const replyToComponent = {
     methods: {
         buildData(){
             return {
-                replyTo: this.postTitle,
+                replyTo: this.postURL,
                 body: this.postBody,
                 type: this.postType,
                 syndicateTo: this.syndicateTo,
@@ -380,7 +381,7 @@ const shareLinkComponent = {
     methods: {
         buildData(){
             return {
-                bookmark: this.postTitle,
+                bookmark: this.postURL,
                 body: this.postBody,
                 type: this.postType,
                 syndicateTo: this.syndicateTo,
@@ -397,7 +398,7 @@ const likeComponent = {
     methods: {
         buildData(){
             return {
-                like: this.postTitle,
+                like: this.postURL,
                 body: this.postBody,
                 type: this.postType,
                 syndicateTo: this.syndicateTo,
@@ -413,7 +414,7 @@ const editPostComponent = {
     props: ['micropuburl', 'token'],
     data() {
         return {
-            postEditUrl: "",
+            postURL: "",
             postBody: "",
             postTitle: "",
             postType: "entry",
@@ -424,9 +425,9 @@ const editPostComponent = {
     },
     methods: {
         sourcePost(){
-            if (this.postEditUrl === '') return;
+            if (this.postURL === '') return;
             this.showOverlay = true;
-            sourcePostProperties(this.micropuburl, this.token, this.postEditUrl).then(postAttrs => {
+            sourcePostProperties(this.micropuburl, this.token, this.postURL).then(postAttrs => {
                 this.postBody = postAttrs.content;
                 this.postTitle = postAttrs.title
             }).then(() => {
@@ -442,7 +443,7 @@ const editPostComponent = {
             updatePost(this.micropuburl, this.token, {
                 title: this.postTitle,
                 content: this.postBody,
-                url: this.postEditUrl
+                url: this.postURL
             }).then(() => {
                 this.showOverlay = false;
                 this.editSuccess = true
@@ -614,9 +615,10 @@ const mainApp = new Vue({
                 });
             });
         },
-        initEditor(auth){
+        initEditor(auth, options){
             this.currentScreen = LastScreen.get();
-            return this.setupMp(auth)
+            !!options.initialScreen && this.triggerMenu(options.initialScreen);
+            return this.setupMp(auth);
         },
         showAuth() {
             this.currentScreen = 'authSection';
@@ -665,9 +667,14 @@ function init(){
     } else {
         const siteUrl = CurrentBlog.get();
         if (!!siteUrl) {
+            const initialScreen = params.get('screen');
+            const url = params.get('url');
             TokenManager.get(siteUrl).then(token => mainApp.initEditor({
                 siteUrl,
                 token
+            }, {
+                initialScreen,
+                url
             })).then(() => CurrentBlog.set(siteUrl));
         } else {
             mainApp.showAuth();

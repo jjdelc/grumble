@@ -162,9 +162,9 @@
             <button type="submit">Post</button>
             </div>
         </div>
-        <p v-show="postURL !== ''" class="new-post-link">
-            <a :href="postURL" target="_blank">View post</a>
-            <input :value="postURL" readonly>
+        <p v-show="postSuccessURL !== ''" class="new-post-link">
+            <a :href="postSuccessURL" target="_blank">View post</a>
+            <input :value="postSuccessURL" readonly>
         </p>
         </div>
     </form>
@@ -185,7 +185,7 @@
             <p class="post-edit-url">
                 <input
                     type="url" class="post-title" focus
-                    name="url" v-model="postEditUrl" required
+                    name="url" v-model="postURL" required
                     placeholder="URL to edit"/>
                 <button @click.prevent="sourcePost">Go</button>
             </p>
@@ -204,8 +204,8 @@
                 </div>
             </div>
             <p v-show="editSuccess" class="new-post-link">
-                <a :href="postEditUrl" target="_blank">View post</a>
-                <input :value="postEditUrl" readonly>
+                <a :href="postURL" target="_blank">View post</a>
+                <input :value="postURL" readonly>
             </p>
         </div>
         </div>
@@ -288,9 +288,9 @@
             <button type="submit">Post</button>
             </div>
         </div>
-        <p v-show="postURL !== ''" class="new-post-link">
-            <a :href="postURL" target="_blank">View post</a>
-            <input :value="postURL" readonly>
+        <p v-show="postSuccessURL !== ''" class="new-post-link">
+            <a :href="postSuccessURL" target="_blank">View post</a>
+            <input :value="postSuccessURL" readonly>
         </p>
         </div>
     </form>
@@ -310,7 +310,7 @@
         <div class="post-editor">
             <p><input
                     type="url" class="post-title" focus
-                    name="name" v-model="postTitle" autocomplete="off"
+                    name="name" v-model="postURL" autocomplete="off"
                     placeholder="Reply to URL"/></p>
             <p><textarea ref="postBody"
                     placeholder="Reply body"
@@ -329,9 +329,9 @@
             <button type="submit">Reply</button>
             </div>
         </div>
-        <p v-show="postURL !== ''" class="new-post-link">
-            <a :href="postURL" target="_blank">View post</a>
-            <input :value="postURL" readonly>
+        <p v-show="postSuccessURL !== ''" class="new-post-link">
+            <a :href="postSuccessURL" target="_blank">View post</a>
+            <input :value="postSuccessURL" readonly>
         </p>
         </div>
     </form>
@@ -351,7 +351,7 @@
         <div class="post-editor">
             <p><input
                     type="url" class="post-title" focus
-                    name="name" v-model="postTitle" autocomplete="off"
+                    name="name" v-model="postURL" autocomplete="off"
                     placeholder="Link to share"/></p>
             <p><textarea ref="postBody"
                     placeholder="Note..."
@@ -370,9 +370,9 @@
             <button type="submit">Save bookmark</button>
             </div>
         </div>
-        <p v-show="postURL !== ''" class="new-post-link">
-            <a :href="postURL" target="_blank">View post</a>
-            <input :value="postURL" readonly>
+        <p v-show="postSuccessURL !== ''" class="new-post-link">
+            <a :href="postSuccessURL" target="_blank">View post</a>
+            <input :value="postSuccessURL" readonly>
         </p>
         </div>
     </form>
@@ -392,7 +392,7 @@
         <div class="post-editor">
             <p><input
                     type="url" class="post-title" focus
-                    name="name" v-model="postTitle" autocomplete="off"
+                    name="name" v-model="postURL" autocomplete="off"
                     placeholder="Page to like"/></p>
             <p><textarea ref="postBody"
                     placeholder="Note..."
@@ -411,9 +411,9 @@
             <button type="submit">Like page &#9829;</button>
             </div>
         </div>
-        <p v-show="postURL !== ''" class="new-post-link">
-            <a :href="postURL" target="_blank">View post</a>
-            <input :value="postURL" readonly>
+        <p v-show="postSuccessURL !== ''" class="new-post-link">
+            <a :href="postSuccessURL" target="_blank">View post</a>
+            <input :value="postSuccessURL" readonly>
         </p>
         </div>
     </form>
