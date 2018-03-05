@@ -258,14 +258,14 @@ const authComponent = {
 
 
 const baseEditor = {
-    props: ['micropuburl', 'token', 'config'],
+    props: ['micropuburl', 'token', 'config', 'postUrl'],
     data() {
         return {
             postImages: [],
             postBody: "",
             postTitle: "",
             postType: "entry",
-            postURL: "",
+            postUrl: "",
             showOverlay: false,
             syndicateTo: [],
             previewImg: null,
@@ -336,7 +336,7 @@ const baseEditor = {
         clearFields(){
             this.postBody = "";
             this.postTitle = "";
-            this.postURL = "";
+            this.postUrl = "";
             this.postImages = [];
             this.postVideos = [];
             if (!!this.$refs.fileField)
@@ -364,7 +364,7 @@ const replyToComponent = {
     methods: {
         buildData(){
             return {
-                replyTo: this.postURL,
+                replyTo: this.postUrl,
                 body: this.postBody,
                 type: this.postType,
                 syndicateTo: this.syndicateTo,
@@ -381,7 +381,7 @@ const shareLinkComponent = {
     methods: {
         buildData(){
             return {
-                bookmark: this.postURL,
+                bookmark: this.postUrl,
                 body: this.postBody,
                 type: this.postType,
                 syndicateTo: this.syndicateTo,
@@ -398,7 +398,7 @@ const likeComponent = {
     methods: {
         buildData(){
             return {
-                like: this.postURL,
+                like: this.postUrl,
                 body: this.postBody,
                 type: this.postType,
                 syndicateTo: this.syndicateTo,
@@ -411,10 +411,9 @@ const likeComponent = {
 
 const editPostComponent = {
     template: '#editPostEditor',
-    props: ['micropuburl', 'token'],
+    props: ['micropuburl', 'token', 'postUrl'],
     data() {
         return {
-            postURL: "",
             postBody: "",
             postTitle: "",
             postType: "entry",
@@ -425,9 +424,9 @@ const editPostComponent = {
     },
     methods: {
         sourcePost(){
-            if (this.postURL === '') return;
+            if (this.postUrl === '') return;
             this.showOverlay = true;
-            sourcePostProperties(this.micropuburl, this.token, this.postURL).then(postAttrs => {
+            sourcePostProperties(this.micropuburl, this.token, this.postUrl).then(postAttrs => {
                 this.postBody = postAttrs.content;
                 this.postTitle = postAttrs.title
             }).then(() => {
@@ -443,7 +442,7 @@ const editPostComponent = {
             updatePost(this.micropuburl, this.token, {
                 title: this.postTitle,
                 content: this.postBody,
-                url: this.postURL
+                url: this.postUrl
             }).then(() => {
                 this.showOverlay = false;
                 this.editSuccess = true
@@ -548,7 +547,8 @@ const mainApp = new Vue({
         siteUrl: null,
         micropuburl: null,
         mediaExpanded: false,
-        showSidebar: false
+        showSidebar: false,
+        postUrl: ""
     },
     computed: {
         mediaChevron(){
@@ -618,6 +618,7 @@ const mainApp = new Vue({
         initEditor(auth, options){
             this.currentScreen = LastScreen.get();
             !!options.initialScreen && this.triggerMenu(options.initialScreen);
+            this.postUrl = !!options.url?options.url:"";
             return this.setupMp(auth);
         },
         showAuth() {

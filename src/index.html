@@ -58,24 +58,34 @@
         <div v-show="currentScreen === 'editPostSection'">
             <h1 class="post-type-title">Edit post</h1>
             <edit-post v-show="online"
-                    v-bind:token="token" v-bind:micropuburl="micropuburl"></edit-post>
+                v-bind:token="token"
+                v-bind:post-url.camel="postUrl"
+                v-bind:micropuburl="micropuburl"></edit-post>
             <p v-show="!online">Currently offline, Cannot edit posts.</p>
         </div>
         <div v-show="currentScreen === 'quickNoteSection'">
             <h1 class="post-type-title">Quick note</h1>
-            <quick-note v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></quick-note>
+            <quick-note v-bind:token="token"
+                v-bind:post-url.camel="postUrl"
+                v-bind:micropuburl="micropuburl" v-bind:config="config"></quick-note>
         </div>
         <div v-show="currentScreen === 'replySection'">
             <h1 class="post-type-title">Reply</h1>
-            <reply-to v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></reply-to>
+            <reply-to v-bind:token="token"
+                v-bind:post-url.camel="postUrl"
+                v-bind:micropuburl="micropuburl" v-bind:config="config"></reply-to>
         </div>
         <div v-show="currentScreen === 'shareLinkSection'">
             <h1 class="post-type-title">Share</h1>
-            <share-link v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></share-link>
+            <share-link v-bind:token="token"
+                v-bind:post-url.camel="postUrl"
+                v-bind:micropuburl="micropuburl" v-bind:config="config"></share-link>
         </div>
         <div v-show="currentScreen === 'likeSection'">
             <h1 class="post-type-title">Like &#9829;</h1>
-            <like-page v-bind:token="token" v-bind:micropuburl="micropuburl" v-bind:config="config"></like-page>
+            <like-page v-bind:token="token"
+                v-bind:post-url.camel="postUrl"
+                v-bind:micropuburl="micropuburl" v-bind:config="config"></like-page>
         </div>
         <div class="media-section" v-show="online && !!mediaurl">
         <h2 class="media-toggler" @click="mediaExpanded = !mediaExpanded">Media
@@ -185,7 +195,7 @@
             <p class="post-edit-url">
                 <input
                     type="url" class="post-title" focus
-                    name="url" v-model="postURL" required
+                    name="url" v-model="postUrl"
                     placeholder="URL to edit"/>
                 <button @click.prevent="sourcePost">Go</button>
             </p>
@@ -204,8 +214,8 @@
                 </div>
             </div>
             <p v-show="editSuccess" class="new-post-link">
-                <a :href="postURL" target="_blank">View post</a>
-                <input :value="postURL" readonly>
+                <a :href="postUrl" target="_blank">View post</a>
+                <input :value="postUrl" readonly>
             </p>
         </div>
         </div>
@@ -310,7 +320,7 @@
         <div class="post-editor">
             <p><input
                     type="url" class="post-title" focus
-                    name="name" v-model="postURL" autocomplete="off"
+                    name="name" v-model="postUrl" autocomplete="off"
                     placeholder="Reply to URL"/></p>
             <p><textarea ref="postBody"
                     placeholder="Reply body"
@@ -351,7 +361,7 @@
         <div class="post-editor">
             <p><input
                     type="url" class="post-title" focus
-                    name="name" v-model="postURL" autocomplete="off"
+                    name="name" v-model="postUrl" autocomplete="off"
                     placeholder="Link to share"/></p>
             <p><textarea ref="postBody"
                     placeholder="Note..."
@@ -392,7 +402,7 @@
         <div class="post-editor">
             <p><input
                     type="url" class="post-title" focus
-                    name="name" v-model="postURL" autocomplete="off"
+                    name="name" v-model="postUrl" autocomplete="off"
                     placeholder="Page to like"/></p>
             <p><textarea ref="postBody"
                     placeholder="Note..."
