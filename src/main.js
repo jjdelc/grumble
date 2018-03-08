@@ -314,7 +314,7 @@ const baseEditor = {
             };
         },
         isEmpty(){
-            return (!this.postTitle && !this.postBody && this.postImages.length === 0)
+            return (!(this.postUrl || this.postTitle) && !this.postBody && this.postImages.length === 0)
         },
         submitPost() {
             if (this.isEmpty()) return;
