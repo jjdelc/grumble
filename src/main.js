@@ -427,9 +427,9 @@ const editPostComponent = {
             if (this.postUrl === '') return;
             this.showOverlay = true;
             sourcePostProperties(this.micropuburl, this.token, this.postUrl).then(postAttrs => {
+                autosize(this.$refs.postBody);
                 this.postBody = postAttrs.content;
                 this.postTitle = postAttrs.title
-                autosize(this.$refs.postBody);
             }).then(() => {
                 this.showOverlay = false;
                 this.editing = true;
