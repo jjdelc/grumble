@@ -16,8 +16,14 @@ Current working client at https://grumble.isgeek.net/
 
  ## Caveats
 
- * Offline support only available for Chrome (Firefox has an [IndexDB bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1383029))
- * Micropub endpoint needs to support CORS
+Since this is a full client side client, it requires a few resources to support
+CORS:
+   * Micropub endpoint
+   * You Indieauth page (where to discover the `authorization_url`)
+   * Media endpoint
+
+Offline support only available for Chrome, Firefox has an
+[IndexDB bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1383029))
 
 
 ## Tools used
@@ -25,3 +31,10 @@ Current working client at https://grumble.isgeek.net/
 * VueJS
 * [Jake Archivald's IDB](https://github.com/jakearchibald/idb)
 * UpUp
+
+## Screenshots
+
+![Main composer](res/composer-main.png)
+![Reply interface](res/composer-reply.png)
+![Quick notes](res/composer-quick.png)
+![Options menu](res/composer-menu.png)
