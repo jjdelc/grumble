@@ -3,6 +3,8 @@
 A client side only [Micropub](https://www.w3.org/TR/micropub/) client.
 Installation only requires to deploy the files in a static web server.
 
+Current working client at https://grumble.isgeek.net/
+
 ## Features
 
  * Indieauth login
