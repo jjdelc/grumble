@@ -36,13 +36,17 @@ Offline support only available for Chrome, Firefox has an
 
 
 Main composer
+
 ![Main composer](res/composer-main.png)
 
 Reply screen
+
 ![Reply interface](res/composer-reply.png)
 
 Quick notes - Tweet like
+
 ![Quick notes](res/composer-quick.png)
 
 Options menu
+
 ![Options menu](res/composer-menu.png)
