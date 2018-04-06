@@ -660,6 +660,10 @@ const mainApp = new Vue({
 
 
 function init(){
+    // Unhide UI
+    const hiddenEls = [...document.getElementsByClassName('boot-hidden')];
+    hiddenEls.forEach(el => el.classList.remove('boot-hidden'));
+
     const params = new URLSearchParams(location.search);
     const code = params.get('code');
     if (!!code) {

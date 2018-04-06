@@ -20,32 +20,32 @@
     <!--<button @click="resetApp">Reset app</button>-->
 </div>
 
-<div class="post-editor-screen" v-show="displayChrome">
-<div class="options-sidebar" v-show="showSidebar">
+<div class="post-editor-screen boot-hidden" v-show="displayChrome">
+    <div class="options-sidebar" v-show="showSidebar">
+        <div class="top-bar">
+            <a @click.prevent="toggleOptions"><i class="fa fa-bars"></i></a>
+            <h1>Menu</h1>
+        </div>
+        <ul class="opts-menu">
+            <li><a @click.prevent="triggerMenu('newPostSection')">New Post</a></li>
+            <li><a @click.prevent="triggerMenu('quickNoteSection')">Quick note</a></li>
+            <li><a @click.prevent="triggerMenu('editPostSection')">Edit Post</a></li>
+            <li><a @click.prevent="triggerMenu('replySection')">Reply</a></li>
+            <li><a @click.prevent="triggerMenu('shareLinkSection')">Share link</a></li>
+            <li><a @click.prevent="triggerMenu('likeSection')">Like page</a></li>
+            <li><a href="#">RSVP</a></li>
+            <li class="separator"></li>
+            <li><a @click.prevent="triggerMenu('msgQueueSection')">Queue</a></li>
+            <li class="separator"></li>
+            <li><a @click="reload">Reload app</a></li>
+            <li><a @click="resetApp">Reset app</a></li>
+        </ul>
+    </div>
     <div class="top-bar">
         <a @click.prevent="toggleOptions"><i class="fa fa-bars"></i></a>
-        <h1>Menu</h1>
+        <h1>{{siteUrl}}</h1>
+        <a @click="signOut"><i class="fa fa-sign-out-alt"></i></a>
     </div>
-    <ul class="opts-menu">
-        <li><a @click.prevent="triggerMenu('newPostSection')">New Post</a></li>
-        <li><a @click.prevent="triggerMenu('quickNoteSection')">Quick note</a></li>
-        <li><a @click.prevent="triggerMenu('editPostSection')">Edit Post</a></li>
-        <li><a @click.prevent="triggerMenu('replySection')">Reply</a></li>
-        <li><a @click.prevent="triggerMenu('shareLinkSection')">Share link</a></li>
-        <li><a @click.prevent="triggerMenu('likeSection')">Like page</a></li>
-        <li><a href="#">RSVP</a></li>
-        <li class="separator"></li>
-        <li><a @click.prevent="triggerMenu('msgQueueSection')">Queue</a></li>
-        <li class="separator"></li>
-        <li><a @click="reload">Reload app</a></li>
-        <li><a @click="resetApp">Reset app</a></li>
-    </ul>
-</div>
-<div class="top-bar">
-    <a @click.prevent="toggleOptions"><i class="fa fa-bars"></i></a>
-    <h1>{{siteUrl}}</h1>
-    <a @click="signOut"><i class="fa fa-sign-out-alt"></i></a>
-</div>
     <div v-show="currentScreen === 'msgQueueSection'">
         <h1 class="post-type-title">Messages Queue</h1>
         <msg-queue ref="queue"></msg-queue>
@@ -101,6 +101,7 @@
     </div>
 </div>
 
+<p class="credits"><a href="https://github.com/jjdelc/grumble">Grumble</a></p>
 </div>
 
 <script src="vue.js"></script>

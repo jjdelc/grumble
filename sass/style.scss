@@ -343,3 +343,13 @@ $bar-height: 3rem;
     }
   }
 }
+
+.boot-hidden {
+  display: none;
+}
+
+.credits a {
+  font-size: 0.65rem;
+  color: lightgray;
+  text-decoration: none;
+}
