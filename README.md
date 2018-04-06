@@ -8,11 +8,13 @@ Current working client at https://grumble.isgeek.net/
 ## Features
 
  * Indieauth login
- * Offline posting support
+ * Offline post support (with queue for sending later)
  * Installable as a phone app
  * Syndication
  * Media endpoint support
  * Like/Bookmark/Reply support
+ * Posts videos/photos
+ * Form-encoded syntax
 
  ## Caveats
 

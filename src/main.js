@@ -8,6 +8,7 @@ function discoverLink(url, linkName) {
             method: 'GET',
             mode: 'cors'
         });
+        // This should also read from HTTP headers
         return fetch(siteReq).then(response => response.text()).then(bodyHTML => {
             const rBody = document.createElement('html');
             rBody.innerHTML = bodyHTML;
@@ -33,7 +34,7 @@ function readConfig(mpEndpoint, token, key) {
     });
     return fetch(req).then(response => response.json()).then(_config => {
         localStorage.setItem(key, JSON.stringify(_config));
-        return _config
+        return _config;
     });
 }
 
@@ -108,7 +109,7 @@ function obtainToken(code, tokenEndpoint) {
         mode: 'cors'
     });
     return fetch(req).then(response => response.json()).then(r => {
-        return r.access_token
+        return r.access_token;
     });
 }
 
@@ -124,7 +125,7 @@ async function addToQueue(message) {
         const outbox = await store.outbox('readwrite');
         await outbox.put(message);
     } catch(err) {
-        // Something happened, this most likelyt is Firefox's error:
+        // Something happened, this most likely is Firefox's error:
         // https://github.com/jakearchibald/idb/issues/42
         // https://bugzilla.mozilla.org/show_bug.cgi?id=1383029
         // We either drop all the idb niceness and rewrite indexedBD usage
