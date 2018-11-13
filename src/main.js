@@ -614,7 +614,7 @@ const mainApp = new Vue({
                 this.initEditor({
                     siteUrl,
                     token
-                });
+                }, {});
             });
         },
         initEditor(auth, options){
