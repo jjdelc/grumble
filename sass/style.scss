@@ -153,6 +153,10 @@ $bar-height: 3rem;
     flex: 1 0 auto;
     text-align: right;
   }
+  .char-count {
+    font-size: 0.8rem;
+    color: $gray;
+  }
   .post-edit-url {
     display: flex;
     input {

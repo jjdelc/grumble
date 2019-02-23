@@ -285,6 +285,9 @@ const baseEditor = {
                 syndicationTargets: syndicationTargets,
                 hasSyndicationTargets: syndicationTargets.length > 0,
             }
+        },
+        charCount(){
+            return this.postBody.length;
         }
     },
     methods: {
@@ -682,7 +685,10 @@ function init(){
             }, {
                 initialScreen,
                 url
-            })).then(() => CurrentBlog.set(siteUrl));
+            })).then(() => CurrentBlog.set(siteUrl)).catch(() => {
+                // Problem somewhere, probably getting token
+                mainApp.showAuth();
+            });
         } else {
             mainApp.showAuth();
         }
