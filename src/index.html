@@ -111,7 +111,7 @@
     <form :action="authTarget" @submit.prevent="authSite" method="GET">
         <p>
         <label for="indie_auth_url">Indieweb log in:</label>
-        <input id="indie_auth_url" type="url" focus name="me" v-model="siteUrl"
+        <input id="indie_auth_url" type="url" autofocus name="me" v-model="siteUrl"
                required placeholder="yourdomain.com" />
         </p>
         <p><button type="submit">Sign In</button></p>
@@ -135,7 +135,7 @@
           method="POST" enctype="multipart/form-data">
         <div class="post-editor">
             <p><input
-                    type="text" class="post-title" focus
+                    type="text" class="post-title" autofocus
                     name="name" v-model="postTitle" autocomplete="off"
                     placeholder="Optional title"/></p>
 
@@ -195,14 +195,14 @@
         <div class="post-editor">
             <p class="post-edit-url">
                 <input
-                    type="url" class="post-title" focus
+                    type="url" class="post-title" autofocus
                     name="url" v-model="postUrl"
                     placeholder="URL to edit"/>
                 <button @click.prevent="sourcePost">Go</button>
             </p>
             <div v-show="editing">
             <p><input
-                    type="text" class="post-title" focus
+                    type="text" class="post-title" autofocus
                     name="name" v-model="postTitle"
                     placeholder="Optional title"/></p>
             <p><textarea ref="postBody"
@@ -296,6 +296,7 @@
             </label>
             </div>
             <div class="form-submit">
+                <span class="char-count">({{charCount}})</span>
             <button type="submit">Post</button>
             </div>
         </div>
@@ -320,7 +321,7 @@
           method="POST" enctype="multipart/form-data">
         <div class="post-editor">
             <p><input
-                    type="url" class="post-title" focus
+                    type="url" class="post-title" autofocus
                     name="name" v-model="postUrl" autocomplete="off"
                     placeholder="Reply to URL"/></p>
             <p><textarea ref="postBody"
@@ -361,7 +362,7 @@
           method="POST" enctype="multipart/form-data">
         <div class="post-editor">
             <p><input
-                    type="url" class="post-title" focus
+                    type="url" class="post-title" autofocus
                     name="name" v-model="postUrl" autocomplete="off"
                     placeholder="Link to share"/></p>
             <p><textarea ref="postBody"
@@ -402,7 +403,7 @@
           method="POST" enctype="multipart/form-data">
         <div class="post-editor">
             <p><input
-                    type="url" class="post-title" focus
+                    type="url" class="post-title" autofocus
                     name="name" v-model="postUrl" autocomplete="off"
                     placeholder="Page to like"/></p>
             <p><textarea ref="postBody"
@@ -463,7 +464,7 @@
         });
     }
 
-    UpUp.start({
+    UpUp && UpUp.start({
     'content-url': 'index.html',
     'assets': [
         '/favicon.png?v=0',
