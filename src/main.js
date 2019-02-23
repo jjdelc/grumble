@@ -426,6 +426,11 @@ const editPostComponent = {
             editSuccess: false
         };
     },
+    computed: {
+        charCount(){
+            return this.postBody.length;
+        }
+    },
     methods: {
         sourcePost(){
             if (this.postUrl === '') return;
