@@ -52,3 +52,53 @@ Quick notes - Tweet like
 Options menu
 
 ![Options menu](res/composer-menu.png)
+
+
+# Installation
+
+## Serve the files statically
+
+Just host the files anywhere that they can be served statically. This is
+an example Nginx configuration.
+
+```
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443  ssl http2;
+    server_name grumble.isgeek.net;
+
+    location ~ ^/favicon\.(\w+)$ {
+        alias /path/grumble/src/favicon.png;
+    }
+    location / {
+        root /path/grumble/src/;
+    }
+}
+```
+
+## Add `client.js`
+
+It is necessary to teach Grumble where it is being served from. You need to
+create a `client.js` file that gets served from the document root declaring
+two constants `CLIENT_ID` and `REDIRECT_URI`. 
+
+```
+const CLIENT_ID = "https://grumble.isgeek.net";
+const REDIRECT_URI = "https://grumble.isgeek.net";
+```
+
+It's also perfectly fine to host on S3.
+
+
+## Blog setup
+
+Remember that you need to enable CORS on your identification URL. This is 
+how I do it on Nginx.
+
+```
+    location / {
+        add_header 'Access-Control-Allow-Origin' '*';
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+    }
+```
