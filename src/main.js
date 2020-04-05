@@ -97,16 +97,20 @@ const CurrentBlog = {
     }
 };
 
-function obtainToken(code, tokenEndpoint) {
+function obtainToken(code, tokenEndpoint, meValue) {
     const data = new FormData();
     data.append('code', code);
+    data.append('me', meValue);
     data.append('client_id', CLIENT_ID);
     data.append('redirect_uri', REDIRECT_URI);
     data.append('grant_type',"authorization_code");
     const req = new Request(tokenEndpoint, {
         method: 'POST',
         body: data,
-        mode: 'cors'
+        mode: 'cors',
+        headers: {
+          'accept': 'application/json',
+        },
     });
     return fetch(req).then(response => response.json()).then(r => {
         return r.access_token;
@@ -616,7 +620,7 @@ const mainApp = new Vue({
         },
         negotiateCode(siteUrl, code) {
             return discoverLink(siteUrl, "token_endpoint").then(
-                tokenEndpoint => obtainToken(code, tokenEndpoint)
+                tokenEndpoint => obtainToken(code, tokenEndpoint, siteUrl)
             ).then(token => {
                 TokenManager.store(siteUrl, token);
                 this.initEditor({
