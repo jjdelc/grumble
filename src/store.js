@@ -35,6 +35,9 @@ function prepareFormData(content) {
     if (!!content.like) {
         data.append('like-of', content.like);
     }
+    if (!!content.rsvp) {
+        data.append('rsvp-of', content.rsvp);
+    }
     data.append('content', content.body);
     data.append('h', content.type);
     data.append('published', content.published || (new Date()).toISOString());

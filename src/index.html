@@ -33,7 +33,7 @@
             <li><a @click.prevent="triggerMenu('replySection')">Reply</a></li>
             <li><a @click.prevent="triggerMenu('shareLinkSection')">Share link</a></li>
             <li><a @click.prevent="triggerMenu('likeSection')">Like page</a></li>
-            <li><a href="#">RSVP</a></li>
+            <li><a @click.prevent="triggerMenu('rsvpSection')">RSVP</a></li>
             <li class="separator"></li>
             <li><a @click.prevent="triggerMenu('msgQueueSection')">Queue</a></li>
             <li class="separator"></li>
@@ -86,6 +86,12 @@
             <like-page v-bind:token="token"
                 v-bind:post-url.camel="postUrl"
                 v-bind:micropuburl="micropuburl" v-bind:config="config"></like-page>
+        </div>
+        <div v-show="currentScreen === 'rsvpSection'">
+            <h1 class="post-type-title">RSVP</h1>
+            <rsvp-page v-bind:token="token"
+                v-bind:post-url.camel="postUrl"
+                v-bind:micropuburl="micropuburl" v-bind:config="config"></rsvp-page>
         </div>
         <div class="media-section" v-show="online && !!mediaurl">
         <h2 class="media-toggler" @click="mediaExpanded = !mediaExpanded">Media
@@ -426,6 +432,48 @@
             <div class="form-submit">
             <span class="char-count">({{charCount}})</span>
             <button type="submit">Like page &#9829;</button>
+            </div>
+        </div>
+        <p v-show="postSuccessURL !== ''" class="new-post-link">
+            <a :href="postSuccessURL" target="_blank">View post</a>
+            <input :value="postSuccessURL" readonly>
+        </p>
+        </div>
+    </form>
+</div>
+</script>
+
+<script type="text/x-template" id="rsvpEditor">
+<div class="postSection">
+    <div class="post-overlay" v-show="showOverlay">
+        <span>
+        <i class="fa fa-sync fa-spin"></i>
+        </span>
+    </div>
+    <form :action="micropuburl"
+          @submit.prevent="submitPost"
+          method="POST" enctype="multipart/form-data">
+        <div class="post-editor">
+            <p><input
+                    type="url" class="post-title" autofocus
+                    name="name" v-model="postUrl" autocomplete="off"
+                    placeholder="Event URL"/></p>
+            <p><textarea ref="postBody"
+                    placeholder="Note..."
+                    class="post-body"
+                    v-model="postBody" name="content"></textarea></p>
+        <input type="hidden" name="h" v-bind:value="postType"/>
+        <div class="form-footer">
+            <div class="form-syndication">
+                <label v-for="target in syndication.syndicationTargets">
+                <input type="checkbox" name="syndicate-to" :value="target.uid" v-model="syndicateTo">
+                <img :src="target.service.photo">
+                {{target.name}}
+            </label>
+            </div>
+            <div class="form-submit">
+            <span class="char-count">({{charCount}})</span>
+            <button type="submit">RSVP</button>
             </div>
         </div>
         <p v-show="postSuccessURL !== ''" class="new-post-link">

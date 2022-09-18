@@ -396,6 +396,22 @@ const shareLinkComponent = {
 };
 
 
+const rsvpComponent = {
+    template: '#rsvpEditor',
+    mixins: [baseEditor],
+    methods: {
+        buildData(){
+            return {
+                rsvp: this.postUrl,
+                body: this.postBody,
+                type: this.postType,
+                syndicateTo: this.syndicateTo,
+                published: new Date().toISOString()
+            };
+        }
+    }
+}
+
 const likeComponent = {
     template: '#likeEditor',
     mixins: [baseEditor],
@@ -524,7 +540,7 @@ const pendingQueueComponent = {
                         preview: msg.body.body.substring(0, 75),
                         published: msg.body.published,
                         id: msg.id,
-                        totalImages: msg.body.images.length
+                        totalImages: msg.body.images && msg.body.images.length
                     }
                 })).then(msgs => {
                     this.msgQueue = msgs
@@ -570,7 +586,7 @@ const mainApp = new Vue({
         isEditorScreen() {
             const editorScreens = [
                 'newPostSection', 'editPostSection', 'quickNoteSection',
-                'replySection', 'shareLinkSection', 'likeSection'
+                'replySection', 'shareLinkSection', 'likeSection', 'rsvpSection'
             ];
             return editorScreens.includes(this.currentScreen);
         },
@@ -663,6 +679,7 @@ const mainApp = new Vue({
         'reply-to': replyToComponent,
         'share-link': shareLinkComponent,
         'like-page': likeComponent,
+        'rsvp-page': rsvpComponent,
         'msg-queue': pendingQueueComponent
     }
 });
