@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1" />
 <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
 <link rel="icon" href="favicon.png?v=0"/>
-<link rel="manifest" href="/manifest.json?v=2">
+<link rel="manifest" href="/manifest.json?v=3">
 <link href="style.css" rel="stylesheet"/>
 </head>
 <body>
@@ -497,6 +497,7 @@
         </li>
     </ol>
     <p v-show="msgQueue.length === 0">No messages queued</p>
+    <p>Queued {{queueSize}}</p>
     <p><button @click.prevent="sendAll">Send all</button></p>
 </div>
 </script>
@@ -505,7 +506,7 @@
 <script src="client.js"></script>
 <script src="idb.js"></script>
 <script src="store.js"></script>
-<script src="main.js"></script>
+<script src="main.js?v=1"></script>
 <script src="upup.min.js"></script>
 <script>
     if ('serviceWorker' in navigator) {
@@ -525,7 +526,7 @@
         '/style.css',
         '/autosize.min.js',
         '/client.js',
-        '/main.js',
+        '/main.js?v=1',
         '/store.js',
         '/idb.js',
         '/vue.js',

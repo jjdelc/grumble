@@ -528,19 +528,25 @@ const pendingQueueComponent = {
     template: '#postsQueue',
     data() {
         return {
-            msgQueue: []
+            msgQueue: [],
+            queueSize: 0
         }
     },
     methods: {
         refresh() {
             store.outbox('readonly').then(outbox => {
+                // Count message separately from processing
+                outbox.getAll().then((messages) => {
+                    this.queueSize = messages.length;
+                });
+                // Process messages for rendering
                 outbox.getAll().then(messages => messages.map(msg => {
                     return {
                         title: msg.body.title,
                         preview: msg.body.body.substring(0, 75),
                         published: msg.body.published,
                         id: msg.id,
-                        totalImages: msg.body.images && msg.body.images.length
+                        totalImages: (msg.body.images || []).length
                     }
                 })).then(msgs => {
                     this.msgQueue = msgs
