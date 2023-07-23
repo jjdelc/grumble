@@ -118,7 +118,7 @@ button, input[type=submit] {
   .post-editor .form-syndication label {
     line-height: 2rem; }
   .post-editor .form-syndication img {
-    max-height: 1.5rem;
+    max-height: 1rem;
     vertical-align: middle; }
 .post-editor .form-submit {
   flex: 1 0 auto;
