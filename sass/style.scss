@@ -147,7 +147,17 @@ $bar-height: 3rem;
   .form-syndication {
     flex: 1 0 auto;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    flex-direction: column;
+
+    label {
+      line-height: 2rem;
+    }
+
+    img {
+      max-height: 1.5rem;
+      vertical-align: middle;
+    }
   }
   .form-submit {
     flex: 1 0 auto;
