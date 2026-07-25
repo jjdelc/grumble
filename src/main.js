@@ -196,6 +196,7 @@ function updatePost(endpoint, token, data) {
         body: JSON.stringify(payload),
         mode: 'cors',
         headers: {
+            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         }
     });
