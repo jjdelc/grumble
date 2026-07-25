@@ -157,6 +157,7 @@ function publishContent(endpoint, token, content) {
             method: 'POST',
             mode: 'cors',
             headers: {
+                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`,
             }
         }
